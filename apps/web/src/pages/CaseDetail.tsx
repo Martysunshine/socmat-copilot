@@ -9,6 +9,7 @@ import TimelinePanel from '../components/TimelinePanel'
 import WindowsAnalysisPanel from '../components/WindowsAnalysisPanel'
 import SuricataAnalysisPanel from '../components/SuricataAnalysisPanel'
 import SigmaRunPanel from '../components/SigmaRunPanel'
+import YaraPanel from '../components/YaraPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -208,6 +209,12 @@ export default function CaseDetail() {
       />
 
       <SuricataAnalysisPanel
+        caseId={caseData.id}
+        evidence={evidence}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
+
+      <YaraPanel
         caseId={caseData.id}
         evidence={evidence}
         onAnalysisComplete={handleAnalysisComplete}
