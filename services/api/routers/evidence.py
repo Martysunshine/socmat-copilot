@@ -12,8 +12,11 @@ from models.case import Case
 from models.evidence import Evidence
 from schemas.evidence import EvidenceResponse
 
-UPLOAD_DIR = Path("./uploads")
+UPLOAD_DIR = Path("./uploads").resolve()
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# 50 MB hard ceiling — evidence files are logs/text, not disk images
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 router = APIRouter(prefix="/cases", tags=["evidence"])
 
@@ -50,11 +53,21 @@ async def upload_evidence(
     original_name = file.filename or "upload"
     safe_name = _safe_filename(original_name)
     stored_name = f"{uuid.uuid4().hex}_{safe_name}"
-    dest = UPLOAD_DIR / stored_name
+    dest = (UPLOAD_DIR / stored_name).resolve()
+
+    # Path traversal guard — dest must remain inside UPLOAD_DIR
+    if not dest.is_relative_to(UPLOAD_DIR):
+        raise HTTPException(status_code=400, detail="Invalid filename")
 
     content = await file.read()
-    dest.write_bytes(content)
 
+    if len(content) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File exceeds the {MAX_UPLOAD_BYTES // (1024 * 1024)} MB upload limit",
+        )
+
+    dest.write_bytes(content)
     sha = hashlib.sha256(content).hexdigest()
 
     ev = Evidence(

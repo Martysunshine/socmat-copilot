@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 18 — Testing, Sample Data, and Demo Scenario. All 15 analysis modules complete.
+**Status:** Phase 19 — Security Hardening and Safe Defaults. All 15 analysis modules complete.
 
 ---
 
@@ -210,6 +210,7 @@ Tests are in `tests/` at the project root and import directly from `integrations
 - Do not upload live malware outside of an isolated lab environment.
 - Do not connect production SIEM credentials in development mode.
 - This project is for **defensive** SOC workflows only.
+- See [docs/security-model.md](docs/security-model.md) and [docs/threat-model.md](docs/threat-model.md) for full security documentation.
 
 ---
 
@@ -235,6 +236,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 16: Elastic export support and KQL/ES|QL hunt assistant
 - [x] Phase 17: Analyst dashboard and UX polish
 - [x] Phase 18: Testing, sample data, and demo scenario
+- [x] Phase 19: Security hardening and safe defaults
 
 ---
 

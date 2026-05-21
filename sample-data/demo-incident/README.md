@@ -65,14 +65,14 @@ All IP addresses are RFC 1918 / RFC 5737 documentation ranges.
 - Scheduled task created
 
 ### Suricata parser
-- 6 alerts from 203.0.113.45 → sustained scanning/attack
-- 203.0.113.45 contacted 6 unique destinations → scanning
+- 7 alerts from 203.0.113.45 → sustained scanning/attack
+- 203.0.113.45 contacted 5 unique destinations → scanning
 - ET MALWARE MSIL/GenericDownloader (critical)
 - ET C2 CobaltStrike Beacon (critical)
 - ET EXPLOIT EternalBlue MS17-010
 
 ### Zeek parser
-- `192.168.1.100`: 12 failed/rejected connections (SMB scan)
+- `10.10.50.201`: 12 failed/rejected connections (SMB scan)
 - Long DNS domain query (possible DGA / tunneling)
 - Suspicious TLDs: .xyz, .tk
 - Suspicious user agents: sqlmap, python-requests, go-http-client
