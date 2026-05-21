@@ -98,3 +98,34 @@ export async function detachRuleFromCase(caseId: number, ruleSigmaId: string): P
     })
   }
 }
+
+export interface DetectionFinding {
+  id: number
+  case_id: number
+  rule_id: string
+  rule_title: string
+  severity: string
+  matched_event_id: number
+  match_reason: string
+  event_id_str: string | null
+  event_timestamp: string | null
+  created_at: string
+}
+
+export interface SigmaRunResult {
+  rules_run: number
+  events_scanned: number
+  findings_created: number
+  findings: DetectionFinding[]
+}
+
+export async function runSigmaRules(caseId: number, ruleId?: string): Promise<SigmaRunResult> {
+  const qs = ruleId ? `?rule_id=${encodeURIComponent(ruleId)}` : ''
+  const res = await fetch(`${BASE}/cases/${caseId}/sigma/run${qs}`, { method: 'POST' })
+  return handleResponse<SigmaRunResult>(res)
+}
+
+export async function getSigmaFindings(caseId: number): Promise<DetectionFinding[]> {
+  const res = await fetch(`${BASE}/cases/${caseId}/sigma/findings`)
+  return handleResponse<DetectionFinding[]>(res)
+}

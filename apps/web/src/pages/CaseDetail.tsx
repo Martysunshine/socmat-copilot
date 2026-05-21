@@ -8,6 +8,7 @@ import EvidencePanel from '../components/EvidencePanel'
 import TimelinePanel from '../components/TimelinePanel'
 import WindowsAnalysisPanel from '../components/WindowsAnalysisPanel'
 import SuricataAnalysisPanel from '../components/SuricataAnalysisPanel'
+import SigmaRunPanel from '../components/SigmaRunPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -212,12 +213,12 @@ export default function CaseDetail() {
         onAnalysisComplete={handleAnalysisComplete}
       />
 
-      <TimelinePanel key={timelineKey} caseId={caseData.id} />
+      <SigmaRunPanel
+        caseId={caseData.id}
+        onRunComplete={handleAnalysisComplete}
+      />
 
-      <div className="future-section">
-        <strong>Detection Findings</strong>
-        Sigma rule matches, YARA hits, and suspicious pattern detections — coming in Phases 6–8
-      </div>
+      <TimelinePanel key={timelineKey} caseId={caseData.id} />
 
       <div className="future-section">
         <strong>MITRE ATT&amp;CK Mapping</strong>

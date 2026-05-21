@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 6 — Sigma rule library and rule explainer. YARA, Zeek, and other modules coming in subsequent phases.
+**Status:** Phase 7 — Basic Sigma matching against normalized events. YARA, Zeek, and other modules coming in subsequent phases.
 
 ---
 
@@ -125,6 +125,8 @@ soc-copilot-workbench/
 | `/sigma/rules/reload` | POST | Reload Sigma rules from disk |
 | `/cases/{id}/sigma/rules` | POST | Attach Sigma rule to a case |
 | `/cases/{id}/sigma/rules` | GET | List Sigma rules attached to a case |
+| `/cases/{id}/sigma/run` | POST | Run Sigma rules against normalized events (`?rule_id=` optional) |
+| `/cases/{id}/sigma/findings` | GET | List Sigma detection findings for a case |
 
 Interactive API docs available at http://localhost:8000/docs
 
@@ -149,7 +151,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 4: Windows/Sysmon log parser
 - [x] Phase 5: Suricata IDS alert analysis
 - [x] Phase 6: Sigma rule library
-- [ ] Phase 7: Basic Sigma matching
+- [x] Phase 7: Basic Sigma matching
 - [ ] Phase 8: YARA static malware triage
 - [ ] Phase 9: Zeek network log analysis
 - [ ] Phase 10: Investigation correlation engine

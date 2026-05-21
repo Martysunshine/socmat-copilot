@@ -88,12 +88,52 @@ The explainer module (`integrations/sigma/explainer.py`) generates a structured,
 
 ---
 
-## MVP Limitations
+## Phase 7: Sigma Matching
 
-- Rule loading only — no rule execution against events yet (Phase 7).
-- Detection block parsing covers simple field/value dicts. Complex `keywords`, `filter`, and `near` conditions are displayed as raw structure.
-- `condition` logic (AND, OR, NOT, 1 of, all of) is not evaluated in Phase 6.
-- No automatic conversion to Splunk SPL or Elastic KQL yet (Phase 15/16).
+Phase 7 adds basic rule matching against normalized Windows/Sysmon events stored by the Phase 4 Windows log parser.
+
+### New Endpoint
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/cases/{id}/sigma/run` | Run all loaded rules (or one via `?rule_id=`) against normalized events |
+| `GET` | `/cases/{id}/sigma/findings` | List Sigma detection findings for a case |
+
+### How Matching Works
+
+1. The endpoint loads all `normalized_events` rows for the case (populated by Windows log analysis).
+2. Each event is tested against each rule's `detection` block.
+3. Matches are stored in the `detection_findings` table and added to the case timeline.
+4. Re-running replaces previous findings for the targeted rule(s).
+
+### Supported Operators
+
+| Operator | Example | Supported |
+|----------|---------|-----------|
+| Exact match | `EventID: 4625` | Yes |
+| `\|contains` | `CommandLine\|contains: '-enc'` | Yes |
+| `\|endswith` | `Image\|endswith: '\powershell.exe'` | Yes |
+| `\|startswith` | `Image\|startswith: 'C:\Windows'` | Yes |
+| `\|contains\|all` | list: all items must match | Yes |
+| List (OR) | field: [val1, val2] | Yes — any value matches |
+| AND within selection | multiple fields in one group | Yes |
+| `condition: selection` | simple single-group | Yes |
+| `\|re` regex | `QueryName\|re: '^...'` | Skipped (no match, logged as limitation) |
+| Multi-group conditions | `1 of selection*`, `sel1 and sel2` | Not supported in Phase 7 |
+
+---
+
+## MVP Sigma Matching Limitations
+
+The Phase 7 matcher is an intentional subset of the full Sigma specification:
+
+- **Single selection only** — only `condition: <name>` where `<name>` is one named detection group. Rules with compound conditions (`1 of selection*`, `selection1 and not filter`, etc.) are skipped.
+- **No regex** — the `|re` modifier is not evaluated. Fields with only regex conditions are skipped, preventing those rules from firing.
+- **Unknown fields skipped** — Sigma fields not present in the `normalized_events` schema (e.g. `LogonType`, `ServiceName`, `QueryName`) are silently skipped. A rule passes only if at least one *known* field was evaluated and matched.
+- **No keywords block** — top-level `keywords:` detection entries are not supported.
+- **No filter negation** — `condition: selection and not filter` is skipped (treated as complex condition).
+- **Windows/Sysmon events only** — matching runs against `normalized_events` rows with `source = windows_logs`. Suricata and Zeek events are not yet matched.
+- **No automatic conversion** — rules cannot be exported to Splunk SPL or Elastic KQL yet (Phase 15/16).
 
 ---
 
