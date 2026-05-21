@@ -7,6 +7,7 @@ import StatusBadge from '../components/StatusBadge'
 import EvidencePanel from '../components/EvidencePanel'
 import TimelinePanel from '../components/TimelinePanel'
 import WindowsAnalysisPanel from '../components/WindowsAnalysisPanel'
+import SuricataAnalysisPanel from '../components/SuricataAnalysisPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -200,6 +201,12 @@ export default function CaseDetail() {
       />
 
       <WindowsAnalysisPanel
+        caseId={caseData.id}
+        evidence={evidence}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
+
+      <SuricataAnalysisPanel
         caseId={caseData.id}
         evidence={evidence}
         onAnalysisComplete={handleAnalysisComplete}

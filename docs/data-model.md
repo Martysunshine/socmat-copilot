@@ -91,11 +91,33 @@
 
 ---
 
+## Phase 5 — Suricata IDS/IPS Alert Analysis
+
+Suricata alert records are stored in the existing `normalized_events` table with `source = "suricata"`.
+
+Column mapping for Suricata records:
+
+| `normalized_events` column | Suricata eve.json field |
+|---------------------------|------------------------|
+| `source` | `"suricata"` (literal) |
+| `host` | `dest_ip` |
+| `event_id` | `alert.signature_id` |
+| `event_name` | `alert.signature` |
+| `process_name` | `app_proto` |
+| `source_ip` | `src_ip` |
+| `destination_ip` | `dest_ip` |
+| `destination_port` | `dest_port` |
+| `severity` | mapped from `alert.severity` (1→high, 2→medium, 3→low) |
+| `description` | `alert.category` |
+| `raw_json` | full raw JSON line |
+
+---
+
 ## Future Phases
 
-### Phase 5–9 — Parsed Events & Findings
+### Phase 6–9 — Parsed Events & Findings
 
-**`normalized_events`** (extended) — structured events extracted from Suricata/Zeek logs
+**`normalized_events`** (extended) — structured events extracted from Zeek logs
 
 **`detection_findings`** — Sigma rule matches and suspicious pattern detections
 

@@ -918,6 +918,105 @@ select option {
   line-height: 1.5;
 }
 
+/* Suricata analysis panel */
+.suricata-tables-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .suricata-tables-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.suricata-table-block {
+  min-width: 0;
+}
+
+.suricata-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.suricata-table th {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.suricata-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.suricata-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ip-cell {
+  font-family: monospace;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.count-cell {
+  text-align: right;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.sig-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.sig-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+.sig-name {
+  font-size: 12px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sig-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.finding-sig {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
 /* Footer */
 .footer {
   border-top: 1px solid var(--border);
