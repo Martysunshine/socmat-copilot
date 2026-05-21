@@ -11,6 +11,7 @@ import SuricataAnalysisPanel from '../components/SuricataAnalysisPanel'
 import SigmaRunPanel from '../components/SigmaRunPanel'
 import YaraPanel from '../components/YaraPanel'
 import ZeekPanel from '../components/ZeekPanel'
+import CorrelationPanel from '../components/CorrelationPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -230,6 +231,11 @@ export default function CaseDetail() {
       <SigmaRunPanel
         caseId={caseData.id}
         onRunComplete={handleAnalysisComplete}
+      />
+
+      <CorrelationPanel
+        caseId={caseData.id}
+        onAnalysisComplete={handleAnalysisComplete}
       />
 
       <TimelinePanel key={timelineKey} caseId={caseData.id} />
