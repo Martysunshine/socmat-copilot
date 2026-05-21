@@ -1,0 +1,15 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	http
+#open	2024-03-15-08-00-00
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	trans_depth	method	host	uri	referrer	version	user_agent	origin	request_body_len	response_body_len	status_code	status_msg	info_code	info_msg	tags	username	password	proxied	orig_fuids	orig_filenames	orig_mime_types	resp_fuids	resp_filenames	resp_mime_types
+#types	time	string	addr	port	addr	port	count	string	string	string	string	string	string	string	count	count	count	string	count	string	set[enum]	string	string	set[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]
+1710489600.000000	H1abc1	10.10.10.50	55000	192.168.1.200	80	1	GET	192.168.1.200	/update/check?id=A1B2C3D4E5F6&v=2.1	-	1.1	Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)	-	0	256	200	OK	-	-	(empty)	-	-	-	-	-	-	FaAbBc	-	text/plain
+1710489601.000000	H2abc2	10.10.10.50	55001	192.168.1.200	80	1	POST	192.168.1.200	/update/check?id=A1B2C3D4E5F6&v=2.1	-	1.1	Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)	-	4096	128	200	OK	-	-	(empty)	-	-	-	-	-	-	FbBcCd	-	text/plain
+1710489602.000000	H3abc3	10.10.50.201	55002	10.10.10.50	8080	1	GET	10.10.10.50	/shell.php?cmd=whoami	-	1.1	python-requests/2.28.0	-	0	256	200	OK	-	-	(empty)	-	-	-	-	-	-	FcCdDe	-	text/plain
+1710489603.000000	H4abc4	10.10.50.201	55003	10.10.10.50	8080	1	POST	10.10.10.50	/upload.php	-	1.1	sqlmap/1.7	-	4096	128	200	OK	-	-	(empty)	-	-	-	-	-	-	FdDeFe	-	text/plain
+1710489604.000000	H5abc5	10.10.10.50	55004	192.168.1.200	80	1	GET	192.168.1.200	/payload.exe	-	1.1	go-http-client/1.1	-	0	524288	200	OK	-	-	(empty)	-	-	-	-	-	-	FeFfGg	-	application/octet-stream
+1710489605.000000	H6abc6	10.10.10.50	55005	192.168.1.200	80	1	GET	192.168.1.200	/cmd.php	-	1.1		-	0	64	200	OK	-	-	(empty)	-	-	-	-	-	-	FfGgHh	-	text/plain
+#close	2024-03-15-09-30-00

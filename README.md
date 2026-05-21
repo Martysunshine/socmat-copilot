@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 17 — Analyst Dashboard and UX Polish. All 15 analysis modules complete.
+**Status:** Phase 18 — Testing, Sample Data, and Demo Scenario. All 15 analysis modules complete.
 
 ---
 
@@ -160,6 +160,43 @@ Interactive API docs available at http://localhost:8000/docs
 
 ---
 
+## Demo
+
+Run a pre-built fictional SOC incident scenario (Operation: Midnight Blue) to see all 15 modules in action.
+
+### Automated setup
+
+```bash
+# 1. Start the backend
+cd services/api && uvicorn main:app --reload
+
+# 2. In a second terminal, seed the demo case
+pip install requests
+python scripts/seed_demo.py
+```
+
+The seed script creates a demo case, uploads 7 evidence files, and runs every analysis module. Open the printed URL to see the populated case.
+
+See [docs/demo-walkthrough.md](docs/demo-walkthrough.md) for a manual step-by-step guide and the [sample-data/demo-incident/README.md](sample-data/demo-incident/README.md) for scenario details.
+
+---
+
+## Testing
+
+Parser unit tests cover Windows/Sysmon and Suricata log parsing.
+
+```bash
+# Install pytest
+pip install pytest
+
+# Run all tests
+pytest tests/ -v
+```
+
+Tests are in `tests/` at the project root and import directly from `integrations/`.
+
+---
+
 ## Screenshots
 
 > Add screenshots to `docs/screenshots/` and update this section.
@@ -197,6 +234,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 15: Splunk export support and SPL query assistant
 - [x] Phase 16: Elastic export support and KQL/ES|QL hunt assistant
 - [x] Phase 17: Analyst dashboard and UX polish
+- [x] Phase 18: Testing, sample data, and demo scenario
 
 ---
 

