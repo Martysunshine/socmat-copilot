@@ -1930,6 +1930,144 @@ select option {
   line-height: 1.4;
 }
 
+/* Incident Report Panel */
+.report-meta {
+  margin-top: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.report-meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.report-meta-row:last-child {
+  border-bottom: none;
+}
+
+.report-summary-row {
+  align-items: flex-start;
+}
+
+.report-meta-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  min-width: 90px;
+}
+
+.report-meta-value {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.report-format-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+.report-summary-text {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.report-preview {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.report-preview-content {
+  margin: 0;
+  padding: 16px;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  background: var(--surface);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Reports list page */
+.reports-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.report-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.report-card-case-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.report-card-case-link:hover {
+  text-decoration: underline;
+}
+
+.report-card-ts {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.report-card-summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.report-card-path {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.report-card-path code {
+  color: var(--text-muted);
+}
+
 /* Footer */
 .footer {
   border-top: 1px solid var(--border);

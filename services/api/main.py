@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
-from routers import health, cases, evidence, timeline, windows_logs, suricata, sigma, yara as yara_router, zeek as zeek_router, correlation as correlation_router, mitre as mitre_router
+from routers import health, cases, evidence, timeline, windows_logs, suricata, sigma, yara as yara_router, zeek as zeek_router, correlation as correlation_router, mitre as mitre_router, reports as reports_router
 
 
 @asynccontextmanager
@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SOC Copilot Workbench API",
     description="Local-first defensive SOC automation platform",
-    version="0.11.0",
+    version="0.12.0",
     lifespan=lifespan,
 )
 
@@ -39,3 +39,4 @@ app.include_router(yara_router.router)
 app.include_router(zeek_router.router)
 app.include_router(correlation_router.router)
 app.include_router(mitre_router.router)
+app.include_router(reports_router.router)

@@ -13,6 +13,7 @@ import YaraPanel from '../components/YaraPanel'
 import ZeekPanel from '../components/ZeekPanel'
 import CorrelationPanel from '../components/CorrelationPanel'
 import MitrePanel from '../components/MitrePanel'
+import ReportPanel from '../components/ReportPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -246,10 +247,10 @@ export default function CaseDetail() {
         onAnalysisComplete={handleAnalysisComplete}
       />
 
-      <div className="future-section">
-        <strong>Incident Report</strong>
-        Generate a structured Security Incident Report — coming in Phase 12
-      </div>
+      <ReportPanel
+        caseId={caseData.id}
+        caseTitle={caseData.title}
+      />
     </>
   )
 }

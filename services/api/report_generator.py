@@ -1,0 +1,513 @@
+"""
+Security Incident Report generator for SOC Copilot Workbench.
+
+Produces a structured 15-section Markdown report from all case data.
+Reports are saved to reports/generated/ at the repository root.
+All content is derived from stored case data — no AI or invention.
+"""
+
+import json
+from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
+from typing import List, Tuple
+
+from sqlalchemy.orm import Session
+
+from models.case import Case
+from models.evidence import Evidence
+from models.timeline_event import TimelineEvent
+from models.normalized_event import NormalizedEvent
+from models.detection_finding import DetectionFinding
+from models.malware_triage_result import MalwareTriageResult
+from models.network_analysis_result import NetworkAnalysisResult
+from models.correlated_finding import CorrelatedFinding
+from models.case_mitre_mapping import CaseMitreMapping
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+_REPORTS_DIR = _REPO_ROOT / "reports" / "generated"
+
+# Technique-level recommended actions
+_TECH_RECS = {
+    'T1110': 'Enforce account lockout policies and review privileged account activity for signs of compromise.',
+    'T1003': 'Check for credential dumping tools (e.g. Mimikatz, ProcDump) and rotate any exposed credentials immediately.',
+    'T1059': 'Review scripting engine usage policies; enable Script Block Logging and process creation auditing (EID 4688).',
+    'T1059.001': 'Enable PowerShell Constrained Language Mode and Script Block Logging (EID 4103/4104).',
+    'T1543.003': 'Audit newly installed services; verify binary paths against known-good baselines.',
+    'T1053.005': 'Review scheduled tasks for unauthorized entries, especially those running as SYSTEM.',
+    'T1027': 'Submit suspicious files to sandbox analysis and expand YARA/AV signature coverage.',
+    'T1071.004': 'Investigate DNS query anomalies; consider DNS sinkholing or blocking of high-entropy domains.',
+    'T1071.001': 'Review proxy/firewall logs for suspicious HTTP/HTTPS connections to uncategorized destinations.',
+}
+
+# Technique-level detection improvement suggestions
+_TECH_DETECTION = {
+    'T1110': 'Add Sigma rules for repeated failed authentication (EID 4625/4776). Alert on > 5 failures within 1 minute.',
+    'T1003': 'Monitor for LSASS memory access (EID 4663) and known credential dumping tool process names.',
+    'T1059': 'Ensure full command-line logging is enabled in process creation auditing (EID 4688).',
+    'T1059.001': 'Enable PowerShell Module Logging (EID 4103) and Script Block Logging (EID 4104) via Group Policy.',
+    'T1543.003': 'Alert on new service creation (EID 7045) from non-administrator accounts or unusual binary paths.',
+    'T1053.005': 'Monitor scheduled task creation (EID 4698) especially with SYSTEM or privileged principal.',
+    'T1027': 'Expand YARA ruleset to cover common obfuscation and packing techniques; tune string entropy detection.',
+    'T1071.004': 'Deploy DNS monitoring; alert on high-entropy domain queries and unusually high query volumes.',
+    'T1071.001': 'Implement TLS/SSL inspection on egress traffic; alert on connections to newly registered or uncategorized domains.',
+}
+
+
+def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
+    """Generate a Markdown incident report. Returns (relative_report_path, summary)."""
+    case = db.query(Case).filter(Case.id == case_id).first()
+    evidence = (
+        db.query(Evidence)
+        .filter(Evidence.case_id == case_id)
+        .order_by(Evidence.uploaded_at)
+        .all()
+    )
+    timeline = (
+        db.query(TimelineEvent)
+        .filter(TimelineEvent.case_id == case_id)
+        .order_by(TimelineEvent.timestamp)
+        .all()
+    )
+    norm_events = db.query(NormalizedEvent).filter(NormalizedEvent.case_id == case_id).all()
+    det_findings = (
+        db.query(DetectionFinding)
+        .filter(DetectionFinding.case_id == case_id)
+        .order_by(DetectionFinding.created_at)
+        .all()
+    )
+    yara_results = (
+        db.query(MalwareTriageResult)
+        .filter(MalwareTriageResult.case_id == case_id)
+        .order_by(MalwareTriageResult.created_at)
+        .all()
+    )
+    net_results = (
+        db.query(NetworkAnalysisResult)
+        .filter(NetworkAnalysisResult.case_id == case_id)
+        .order_by(NetworkAnalysisResult.created_at)
+        .all()
+    )
+    corr_findings = (
+        db.query(CorrelatedFinding)
+        .filter(CorrelatedFinding.case_id == case_id)
+        .order_by(CorrelatedFinding.created_at)
+        .all()
+    )
+    mitre_mappings = (
+        db.query(CaseMitreMapping)
+        .filter(CaseMitreMapping.case_id == case_id)
+        .order_by(CaseMitreMapping.tactic, CaseMitreMapping.technique_id)
+        .all()
+    )
+
+    md = _build_report(
+        case, evidence, timeline, norm_events,
+        det_findings, yara_results, net_results, corr_findings, mitre_mappings,
+    )
+
+    _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+    filename = f"case_{case_id}_report_{ts}.md"
+    report_path = _REPORTS_DIR / filename
+    report_path.write_text(md, encoding='utf-8')
+
+    relative_path = str(report_path.relative_to(_REPO_ROOT)).replace('\\', '/')
+    summary = _build_summary(case, det_findings, yara_results, corr_findings, mitre_mappings)
+    return relative_path, summary
+
+
+# ── Formatting helpers ──────────────────────────────────────────────────────────
+
+def _fmt_dt(dt_or_str) -> str:
+    """Format a datetime or ISO string to readable form."""
+    if dt_or_str is None:
+        return 'Unknown'
+    if isinstance(dt_or_str, str):
+        try:
+            dt_or_str = datetime.fromisoformat(dt_or_str)
+        except Exception:
+            return dt_or_str
+    try:
+        return dt_or_str.strftime('%d %b %Y %H:%M UTC')
+    except Exception:
+        return str(dt_or_str)
+
+
+def _load_json(value, fallback=None):
+    if fallback is None:
+        fallback = []
+    if value is None:
+        return fallback
+    if isinstance(value, (list, dict)):
+        return value
+    try:
+        return json.loads(value)
+    except Exception:
+        return fallback
+
+
+# ── Section builders ────────────────────────────────────────────────────────────
+
+def _build_report(
+    case, evidence, timeline, norm_events,
+    det_findings, yara_results, net_results, corr_findings, mitre_mappings,
+) -> str:
+    lines: List[str] = []
+
+    def add(text: str = '') -> None:
+        lines.append(text)
+
+    now_str = datetime.utcnow().strftime('%d %b %Y %H:%M UTC')
+    yara_hits = [r for r in yara_results if r.risk_score > 0]
+    high_det = [f for f in det_findings if f.severity in ('high', 'critical')]
+    high_corr = [c for c in corr_findings if c.confidence == 'high']
+
+    # ── Header ──────────────────────────────────────────────────────────────────
+    add('# Security Incident Report')
+    add('')
+    add(f'**Case ID:** #{case.id}  ')
+    add(f'**Generated:** {now_str}  ')
+    add(f'**Report Format:** Markdown')
+    add('')
+    add('---')
+
+    # ── 1. Executive Summary ────────────────────────────────────────────────────
+    add('')
+    add('## 1. Executive Summary')
+    add('')
+    summary_parts = [
+        f'This report covers investigation case **{case.title}** (#{case.id}), '
+        f'opened on {_fmt_dt(case.created_at)} with a **{case.severity.upper()}** '
+        f'severity classification.',
+    ]
+    if case.description:
+        summary_parts.append(f' {case.description}')
+    summary_parts.append(
+        f'\n\nAs of {now_str}, the case status is **{case.status.upper()}**. '
+        f'The investigation reviewed {len(evidence)} evidence file{"s" if len(evidence) != 1 else ""}, '
+        f'identified {len(det_findings)} Sigma detection finding{"s" if len(det_findings) != 1 else ""}, '
+    )
+    if yara_hits:
+        summary_parts.append(
+            f'{len(yara_hits)} YARA triage hit{"s" if len(yara_hits) != 1 else ""}, '
+        )
+    summary_parts.append(
+        f'and correlated {len(corr_findings)} finding{"s" if len(corr_findings) != 1 else ""}. '
+    )
+    if mitre_mappings:
+        tactics = len({m.tactic for m in mitre_mappings})
+        summary_parts.append(
+            f'MITRE ATT&CK mapping identified {len(mitre_mappings)} '
+            f'technique{"s" if len(mitre_mappings) != 1 else ""} across '
+            f'{tactics} tactic{"s" if tactics != 1 else ""}.'
+        )
+    add(''.join(summary_parts))
+
+    # ── 2. Incident Classification ──────────────────────────────────────────────
+    add('')
+    add('## 2. Incident Classification')
+    add('')
+    add('| Field | Value |')
+    add('|-------|-------|')
+    add(f'| Case Title | {case.title} |')
+    add(f'| Case ID | #{case.id} |')
+    add(f'| Source | {case.source.replace("_", " ").title()} |')
+    add(f'| Status | {case.status.upper()} |')
+    add(f'| Created | {_fmt_dt(case.created_at)} |')
+    add(f'| Last Updated | {_fmt_dt(case.updated_at)} |')
+
+    # ── 3. Severity ─────────────────────────────────────────────────────────────
+    add('')
+    add('## 3. Severity')
+    add('')
+    sev_icon = {'critical': '🔴', 'high': '🟠', 'medium': '🟡', 'low': '🟢'}.get(case.severity, '⚪')
+    add(f'**Overall Severity:** {sev_icon} {case.severity.upper()}')
+    add('')
+    if high_det:
+        add(f'- High/critical Sigma detections: {len(high_det)}')
+    if yara_hits:
+        add(f'- Positive YARA triage results: {len(yara_hits)}')
+    if high_corr:
+        add(f'- High-confidence correlated findings: {len(high_corr)}')
+    high_mitre = [m for m in mitre_mappings if m.confidence == 'high']
+    if high_mitre:
+        add(f'- High-confidence MITRE technique mappings: {len(high_mitre)}')
+    if not any([high_det, yara_hits, high_corr, high_mitre]):
+        add('No high-confidence indicators present at time of report generation.')
+
+    # ── 4. Affected Assets ──────────────────────────────────────────────────────
+    add('')
+    add('## 4. Affected Assets')
+    add('')
+    add('| Asset | Value |')
+    add('|-------|-------|')
+    add(f'| Host | {case.affected_host or "Not specified"} |')
+    add(f'| User | {case.affected_user or "Not specified"} |')
+    add(f'| IP Address | {case.affected_ip or "Not specified"} |')
+
+    # ── 5. Timeline of Events ───────────────────────────────────────────────────
+    add('')
+    add('## 5. Timeline of Events')
+    add('')
+    if timeline:
+        for te in timeline:
+            sev_tag = f'[{te.severity.upper()}] ' if te.severity else ''
+            add(f'- **{_fmt_dt(te.timestamp)}** — {sev_tag}[{te.source}/{te.event_type}] {te.description}')
+    else:
+        add('No timeline events recorded.')
+
+    # ── 6. Evidence Reviewed ────────────────────────────────────────────────────
+    add('')
+    add('## 6. Evidence Reviewed')
+    add('')
+    if evidence:
+        add('| # | Original Filename | Type | Size | SHA-256 (prefix) | Uploaded |')
+        add('|---|-------------------|------|------|------------------|----------|')
+        for i, ev in enumerate(evidence, 1):
+            size_kb = f'{ev.file_size // 1024} KB' if ev.file_size else '—'
+            sha_prefix = (ev.sha256[:16] + '…') if ev.sha256 else '—'
+            add(f'| {i} | `{ev.original_filename}` | {ev.file_type or "—"} | {size_kb} | `{sha_prefix}` | {_fmt_dt(ev.uploaded_at)} |')
+    else:
+        add('No evidence files uploaded.')
+
+    # ── 7. Detection Findings ───────────────────────────────────────────────────
+    add('')
+    add('## 7. Detection Findings (Sigma)')
+    add('')
+    if det_findings:
+        for df in det_findings:
+            sev_label = f'[{df.severity.upper()}] ' if df.severity else ''
+            add(f'### {sev_label}{df.rule_title}')
+            add('')
+            add(f'- **Rule ID:** `{df.rule_id}`')
+            if df.event_id_str:
+                add(f'- **Windows Event ID:** {df.event_id_str}')
+            if df.event_timestamp:
+                add(f'- **Event Time:** {_fmt_dt(df.event_timestamp)}')
+            if df.match_reason:
+                add(f'- **Match Reason:** {df.match_reason}')
+            add('')
+    else:
+        add('No Sigma detection findings.')
+
+    # ── 8. Malware Triage Findings ──────────────────────────────────────────────
+    add('')
+    add('## 8. Malware Triage Findings (YARA)')
+    add('')
+    if yara_results:
+        for r in yara_results:
+            label = f'`{r.sha256[:16]}…`' if r.sha256 else f'Evidence ID {r.evidence_id}'
+            add(f'### File: {label}')
+            add('')
+            add(f'- **Risk Score:** {r.risk_score}')
+            if r.sha256:
+                add(f'- **SHA-256:** `{r.sha256}`')
+            if r.file_type:
+                add(f'- **File Type:** {r.file_type}')
+            if r.file_size:
+                add(f'- **File Size:** {r.file_size // 1024} KB')
+            matches = _load_json(r.yara_matches, [])
+            if matches:
+                rule_names = [
+                    m.get('rule') or m.get('rule_name', '')
+                    for m in matches if isinstance(m, dict)
+                ]
+                rule_names = [n for n in rule_names if n]
+                if rule_names:
+                    add(f'- **Matched Rules:** {", ".join(rule_names)}')
+            if r.summary:
+                add(f'- **Summary:** {r.summary}')
+            add('')
+    else:
+        add('No YARA triage findings.')
+
+    # ── 9. Network Analysis Findings ────────────────────────────────────────────
+    add('')
+    add('## 9. Network Analysis Findings (Zeek)')
+    add('')
+    if net_results:
+        for r in net_results:
+            add(f'### {r.log_type.upper()} Log Analysis')
+            add('')
+            add(f'- **Risk Score:** {r.risk_score}')
+            add(f'- **Total Records:** {r.total_records}')
+            summary_data = _load_json(r.summary_data, {})
+            if isinstance(summary_data, dict):
+                for k, v in list(summary_data.items())[:6]:
+                    add(f'- **{k.replace("_", " ").title()}:** {v}')
+            if r.summary:
+                add(f'- **Analysis Notes:** {r.summary}')
+            findings = _load_json(r.findings, [])
+            if findings:
+                add(f'- **Notable Findings:**')
+                for f_item in findings[:5]:
+                    if isinstance(f_item, dict):
+                        desc = f_item.get('description') or f_item.get('detail') or str(f_item)
+                        add(f'  - {desc}')
+            add('')
+    else:
+        add('No network analysis results.')
+
+    # ── 10. Correlated Findings ─────────────────────────────────────────────────
+    add('')
+    add('## 10. Correlated Findings')
+    add('')
+    if corr_findings:
+        for cf in corr_findings:
+            add(f'### [{cf.confidence.upper()}] {cf.title}')
+            add('')
+            if cf.summary:
+                add(cf.summary)
+                add('')
+            entities = _load_json(cf.entities, [])
+            if entities:
+                ent_parts = []
+                for e in entities[:6]:
+                    if isinstance(e, dict):
+                        ent_parts.append(f'{e.get("type", "entity")}: `{e.get("value", "")}`')
+                if ent_parts:
+                    add(f'**Entities:** {", ".join(ent_parts)}')
+                    add('')
+            if cf.recommended_action:
+                add(f'**Recommended Action:** {cf.recommended_action}')
+                add('')
+    else:
+        add('No correlated findings.')
+
+    # ── 11. MITRE ATT&CK Mapping ────────────────────────────────────────────────
+    add('')
+    add('## 11. MITRE ATT&CK Mapping')
+    add('')
+    if mitre_mappings:
+        tactic_groups: dict = defaultdict(list)
+        for m in mitre_mappings:
+            tactic_groups[m.tactic].append(m)
+
+        for tactic, techniques in tactic_groups.items():
+            add(f'### {tactic}')
+            add('')
+            add('| Technique ID | Technique Name | Confidence |')
+            add('|-------------|----------------|------------|')
+            for t in techniques:
+                add(f'| `{t.technique_id}` | {t.technique_name} | {t.confidence.upper()} |')
+            add('')
+    else:
+        add('No MITRE ATT&CK mappings generated. Run ATT&CK mapping on the case first.')
+
+    # ── 12. Analyst Assessment ──────────────────────────────────────────────────
+    add('')
+    add('## 12. Analyst Assessment')
+    add('')
+    has_data = any([det_findings, yara_hits, net_results, corr_findings, mitre_mappings])
+    if not has_data:
+        add(
+            'Insufficient evidence has been analyzed to form a definitive assessment. '
+            'Upload evidence files and run analysis modules before generating a final report.'
+        )
+    else:
+        assessment: List[str] = []
+        if case.severity in ('high', 'critical'):
+            assessment.append(
+                f'This is a **{case.severity.upper()} severity** incident requiring prompt investigation and response. '
+            )
+        if high_det:
+            assessment.append(
+                f'Sigma detection rules flagged {len(high_det)} high-severity '
+                f'event{"s" if len(high_det) != 1 else ""}, indicating active malicious activity patterns. '
+            )
+        if yara_hits:
+            assessment.append(
+                f'YARA static triage identified {len(yara_hits)} suspicious '
+                f'file{"s" if len(yara_hits) != 1 else ""} matching malware signatures. '
+            )
+        tactic_names = sorted({m.tactic for m in mitre_mappings})
+        if tactic_names:
+            assessment.append(
+                f'Attack activity spans the following ATT&CK tactics: **{", ".join(tactic_names)}**. '
+            )
+        if high_corr:
+            assessment.append(
+                f'High-confidence correlation indicates multi-stage activity: '
+                f'{"; ".join(c.title for c in high_corr[:3])}. '
+            )
+        if not assessment:
+            assessment.append(
+                'Evidence reviewed. No high-confidence indicators detected at this time. '
+                'Manual analyst review is recommended before closing.'
+            )
+        add(''.join(assessment))
+
+    # ── 13. Recommended Actions ─────────────────────────────────────────────────
+    add('')
+    add('## 13. Recommended Actions')
+    add('')
+    rec_actions: List[str] = []
+    seen_recs: set = set()
+
+    for cf in corr_findings:
+        if cf.recommended_action and cf.recommended_action not in seen_recs:
+            rec_actions.append(cf.recommended_action)
+            seen_recs.add(cf.recommended_action)
+
+    for tid, rec in _TECH_RECS.items():
+        if any(m.technique_id == tid for m in mitre_mappings) and rec not in seen_recs:
+            rec_actions.append(rec)
+            seen_recs.add(rec)
+
+    if rec_actions:
+        for rec in rec_actions[:12]:
+            add(f'- {rec}')
+    else:
+        add('- Review all findings and apply appropriate containment measures based on case severity.')
+        add('- Escalate to senior analyst or IR team if indicators of compromise are confirmed.')
+        add('- Preserve evidence and document all investigative steps taken.')
+
+    # ── 14. Detection Opportunities ─────────────────────────────────────────────
+    add('')
+    add('## 14. Detection Opportunities')
+    add('')
+    if mitre_mappings:
+        add('Based on ATT&CK techniques identified in this case, the following monitoring improvements are recommended:')
+        add('')
+        shown = False
+        for m in mitre_mappings:
+            suggestion = _TECH_DETECTION.get(m.technique_id)
+            if suggestion:
+                add(f'- **{m.technique_id}** ({m.technique_name}): {suggestion}')
+                shown = True
+        if not shown:
+            add('No specific detection improvements identified for the mapped techniques.')
+    else:
+        add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
+
+    # ── 15. Final Status ────────────────────────────────────────────────────────
+    add('')
+    add('## 15. Final Status')
+    add('')
+    status_desc = {
+        'open': 'Investigation has been opened. Initial triage is pending.',
+        'investigating': 'Active investigation is in progress. Evidence collection and analysis is ongoing.',
+        'contained': 'The incident has been contained. Post-incident review and lessons-learned documentation is recommended.',
+        'escalated': 'The incident has been escalated to senior analyst or IR team for further action.',
+        'closed': 'The investigation is closed. Evidence and findings have been fully documented.',
+    }
+    add(f'**Case Status:** {case.status.upper()}')
+    add('')
+    add(status_desc.get(case.status, 'Status not recognized.'))
+    add('')
+    add(f'*Report generated on {now_str} by SOC Copilot Workbench.*')
+
+    return '\n'.join(lines)
+
+
+def _build_summary(case, det_findings, yara_results, corr_findings, mitre_mappings) -> str:
+    yara_hits = len([r for r in yara_results if r.risk_score > 0])
+    tactics = len({m.tactic for m in mitre_mappings})
+    return (
+        f'{case.severity.upper()} severity incident. '
+        f'{len(det_findings)} Sigma detection(s), '
+        f'{yara_hits} YARA hit(s), '
+        f'{len(corr_findings)} correlated finding(s), '
+        f'{len(mitre_mappings)} ATT&CK technique(s) across {tactics} tactic(s).'
+    )

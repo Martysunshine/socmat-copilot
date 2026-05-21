@@ -1,9 +1,7 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import '../App.css'
 
-const DISABLED_NAV = [
-  { label: 'Reports', icon: '📄', phase: 12 },
-]
+const DISABLED_NAV: { label: string; icon: string; phase: number }[] = []
 
 export default function Layout() {
   return (
@@ -39,6 +37,14 @@ export default function Layout() {
             >
               🧬 YARA Rules
             </NavLink>
+            <NavLink
+              to="/reports"
+              className={({ isActive }) =>
+                `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
+              }
+            >
+              📄 Reports
+            </NavLink>
             {DISABLED_NAV.map((item) => (
               <button
                 key={item.label}
@@ -58,7 +64,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 11
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 12
       </footer>
     </div>
   )
