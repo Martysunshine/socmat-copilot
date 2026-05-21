@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 1 — Architecture skeleton. Core workflows coming in subsequent phases.
+**Status:** Phase 2 — Case management. Evidence, parsers, and detection modules coming in subsequent phases.
 
 ---
 
@@ -107,8 +107,13 @@ soc-copilot-workbench/
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Service health check |
+| `/cases` | GET | List all cases |
+| `/cases` | POST | Create a new case |
+| `/cases/{id}` | GET | Get case by ID |
+| `/cases/{id}` | PATCH | Update case fields |
+| `/cases/{id}` | DELETE | Delete a case |
 
-More endpoints will be added as phases are implemented.
+Interactive API docs available at http://localhost:8000/docs
 
 ---
 
@@ -126,7 +131,7 @@ More endpoints will be added as phases are implemented.
 See [docs/architecture.md](docs/architecture.md) for the full planned architecture.
 
 - [x] Phase 1: Architecture skeleton
-- [ ] Phase 2: Case management
+- [x] Phase 2: Case management
 - [ ] Phase 3: Evidence upload and timeline
 - [ ] Phase 4: Windows/Sysmon log parser
 - [ ] Phase 5: Suricata IDS alert analysis
