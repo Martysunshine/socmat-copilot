@@ -16,6 +16,7 @@ import MitrePanel from '../components/MitrePanel'
 import ReportPanel from '../components/ReportPanel'
 import AIAssistantPanel from '../components/AIAssistantPanel'
 import SplunkPanel from '../components/SplunkPanel'
+import ElasticPanel from '../components/ElasticPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -221,6 +222,12 @@ export default function CaseDetail() {
       />
 
       <SplunkPanel
+        caseId={caseData.id}
+        evidence={evidence}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
+
+      <ElasticPanel
         caseId={caseData.id}
         evidence={evidence}
         onAnalysisComplete={handleAnalysisComplete}
