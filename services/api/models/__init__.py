@@ -9,5 +9,6 @@ from models.network_analysis_result import NetworkAnalysisResult  # noqa: F401
 from models.correlated_finding import CorrelatedFinding  # noqa: F401
 from models.case_mitre_mapping import CaseMitreMapping  # noqa: F401
 from models.report import Report  # noqa: F401
+from models.splunk_event import SplunkEvent  # noqa: F401
 
-__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult", "CorrelatedFinding", "CaseMitreMapping", "Report"]
+__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult", "CorrelatedFinding", "CaseMitreMapping", "Report", "SplunkEvent"]

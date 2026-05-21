@@ -46,6 +46,14 @@ export default function Layout() {
               📄 Reports
             </NavLink>
             <NavLink
+              to="/splunk"
+              className={({ isActive }) =>
+                `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
+              }
+            >
+              🔍 Splunk
+            </NavLink>
+            <NavLink
               to="/mcp"
               className={({ isActive }) =>
                 `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
@@ -72,7 +80,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 14
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 15
       </footer>
     </div>
   )

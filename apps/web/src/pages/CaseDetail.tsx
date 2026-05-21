@@ -15,6 +15,7 @@ import CorrelationPanel from '../components/CorrelationPanel'
 import MitrePanel from '../components/MitrePanel'
 import ReportPanel from '../components/ReportPanel'
 import AIAssistantPanel from '../components/AIAssistantPanel'
+import SplunkPanel from '../components/SplunkPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -214,6 +215,12 @@ export default function CaseDetail() {
       />
 
       <SuricataAnalysisPanel
+        caseId={caseData.id}
+        evidence={evidence}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
+
+      <SplunkPanel
         caseId={caseData.id}
         evidence={evidence}
         onAnalysisComplete={handleAnalysisComplete}

@@ -9,6 +9,7 @@ import SigmaRuleDetail from './pages/SigmaRuleDetail'
 import YaraRulesPage from './pages/YaraRulesPage'
 import Reports from './pages/Reports'
 import MCPStatus from './pages/MCPStatus'
+import SplunkPage from './pages/SplunkPage'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="yara" element={<YaraRulesPage />} />
           <Route path="reports" element={<Reports />} />
           <Route path="mcp" element={<MCPStatus />} />
+          <Route path="splunk" element={<SplunkPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
