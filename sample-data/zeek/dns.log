@@ -1,0 +1,22 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	dns
+#open	2024-01-15-12-00-00
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	trans_id	rtt	query	qclass	qclass_name	qtype	qtype_name	rcode	rcode_name	AA	TC	RD	RA	Z	answers	TTLs	rejected
+#types	time	string	addr	port	addr	port	enum	count	interval	string	count	string	count	string	count	string	bool	bool	bool	bool	count	vector[string]	vector[interval]	bool
+1705312800.000000	D1abc1	192.168.1.50	54321	8.8.8.8	53	udp	12345	0.001	example.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	93.184.216.34	300.000000	F
+1705312801.000000	D2abc2	192.168.1.50	54322	8.8.8.8	53	udp	12346	0.001	microsoft.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	20.236.44.162	300.000000	F
+1705312802.000000	D3abc3	192.168.1.100	54323	8.8.8.8	53	udp	12347	-	nonexistent-host-xyz.example.com	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1705312803.000000	D4abc4	192.168.1.100	54324	8.8.8.8	53	udp	12348	-	another-missing.local	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1705312804.000000	D5abc5	192.168.1.100	54325	8.8.8.8	53	udp	12349	-	badsite.xyz	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	185.220.101.50	60.000000	F
+1705312805.000000	D6abc6	192.168.1.100	54326	8.8.8.8	53	udp	12350	-	malware-c2.tk	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	185.220.101.51	60.000000	F
+1705312806.000000	D7abc7	192.168.1.50	54327	8.8.8.8	53	udp	12351	0.001	aaaaabbbbbcccccdddddeeeeefffffggggghhhhh123456789012345678901234.evil.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	1.2.3.4	60.000000	F
+1705312807.000000	D8abc8	192.168.1.50	54328	8.8.8.8	53	udp	12352	0.001	google.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	142.250.80.46	300.000000	F
+1705312808.000000	D9abc9	192.168.1.200	54329	8.8.8.8	53	udp	12353	0.001	github.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	140.82.114.4	60.000000	F
+1705312809.000000	Dabcaa	192.168.1.100	54330	8.8.8.8	53	udp	12354	-	fail.local	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1705312810.000000	Dabcab	192.168.1.100	54331	8.8.8.8	53	udp	12355	-	missing2.local	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1705312811.000000	Dabcac	192.168.1.100	54332	8.8.8.8	53	udp	12356	-	missing3.local	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	0	-	-	F
+1705312812.000000	Dabcad	192.168.1.50	54333	8.8.8.8	53	udp	12357	0.001	updates.malware-c2.tk	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	185.220.101.52	60.000000	F
+#close	2024-01-15-12-01-00

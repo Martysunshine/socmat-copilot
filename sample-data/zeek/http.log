@@ -1,0 +1,18 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	http
+#open	2024-01-15-12-00-00
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	trans_depth	method	host	uri	referrer	version	user_agent	origin	request_body_len	response_body_len	status_code	status_msg	info_code	info_msg	tags	username	password	proxied	orig_fuids	orig_filenames	orig_mime_types	resp_fuids	resp_filenames	resp_mime_types
+#types	time	string	addr	port	addr	port	count	string	string	string	string	string	string	string	count	count	count	string	count	string	set[enum]	string	string	set[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]	vector[string]
+1705312800.000000	H1abc1	192.168.1.50	55000	93.184.216.34	80	1	GET	example.com	/	-	1.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36	-	0	1256	200	OK	-	-	(empty)	-	-	-	-	-	-	FaAbBc	-	text/html
+1705312801.000000	H2abc2	192.168.1.50	55001	185.220.101.1	80	1	GET	185.220.101.1	/shell.php?cmd=whoami	-	1.1	python-requests/2.28.0	-	0	256	200	OK	-	-	(empty)	-	-	-	-	-	-	FbBcCd	-	text/plain
+1705312802.000000	H3abc3	192.168.1.100	55002	185.220.101.1	80	1	POST	185.220.101.1	/upload.php	-	1.1	sqlmap/1.7	-	4096	128	200	OK	-	-	(empty)	-	-	-	-	-	-	FcCdDe	-	text/plain
+1705312803.000000	H4abc4	192.168.1.100	55003	10.0.0.1	8080	1	GET	10.0.0.1	/wp-login.php	-	1.1	Mozilla/5.0 (compatible; Googlebot/2.1)	-	0	512	200	OK	-	-	(empty)	-	-	-	-	-	-	FdDeFe	-	text/html
+1705312804.000000	H5abc5	192.168.1.200	55004	192.168.1.1	80	1	GET	intranet.local	/admin	-	1.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)	-	0	8192	200	OK	-	-	(empty)	-	-	-	-	-	-	FeFfGg	-	text/html
+1705312805.000000	H6abc6	192.168.1.50	55005	185.220.101.2	80	1	GET	185.220.101.2	/cmd.php	-	1.1		-	0	128	200	OK	-	-	(empty)	-	-	-	-	-	-	FfGgHh	-	text/plain
+1705312806.000000	H7abc7	192.168.1.50	55006	185.220.101.2	80	1	GET	185.220.101.2	/exec?c=id	-	1.1		-	0	64	200	OK	-	-	(empty)	-	-	-	-	-	-	FgHhIi	-	text/plain
+1705312807.000000	H8abc8	192.168.1.100	55007	8.8.8.8	80	1	GET	update-server.com	/payload.exe	-	1.1	go-http-client/1.1	-	0	524288	200	OK	-	-	(empty)	-	-	-	-	-	-	FhIiJj	-	application/octet-stream
+1705312808.000000	H9abc9	192.168.1.200	55008	192.168.1.1	443	1	GET	secure.intranet.local	/api/v1/data	-	1.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0	-	0	2048	200	OK	-	-	(empty)	-	-	-	-	-	-	FiJjKk	-	application/json
+#close	2024-01-15-12-01-00

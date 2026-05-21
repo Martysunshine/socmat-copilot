@@ -5,5 +5,6 @@ from models.normalized_event import NormalizedEvent  # noqa: F401
 from models.case_sigma_rule import CaseSigmaRule  # noqa: F401
 from models.detection_finding import DetectionFinding  # noqa: F401
 from models.malware_triage_result import MalwareTriageResult  # noqa: F401
+from models.network_analysis_result import NetworkAnalysisResult  # noqa: F401
 
-__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult"]
+__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult"]
