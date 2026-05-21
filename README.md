@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 13 — AI Investigation Assistant. MCP tool server coming in the next phase.
+**Status:** Phase 14 — MCP Tool Server. Splunk export support coming in the next phase.
 
 ---
 
@@ -144,6 +144,8 @@ soc-copilot-workbench/
 | `/reports` | GET | List all generated reports |
 | `/cases/{id}/ai/summarize` | POST | AI case summary grounded in stored findings |
 | `/cases/{id}/ai/recommend` | POST | AI recommended next steps and evidence gap analysis |
+| `/mcp/tools` | GET | List available MCP tools and their parameter requirements |
+| `/mcp/tool-calls` | GET | Recent MCP tool call log entries |
 
 Interactive API docs available at http://localhost:8000/docs
 
@@ -175,7 +177,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 11: MITRE ATT&CK mapping
 - [x] Phase 12: Security Incident Report generator
 - [x] Phase 13: AI investigation assistant
-- [ ] Phase 14: MCP tool server
+- [x] Phase 14: MCP tool server
 
 ---
 

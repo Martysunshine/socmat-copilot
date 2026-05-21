@@ -8,6 +8,7 @@ import SigmaRules from './pages/SigmaRules'
 import SigmaRuleDetail from './pages/SigmaRuleDetail'
 import YaraRulesPage from './pages/YaraRulesPage'
 import Reports from './pages/Reports'
+import MCPStatus from './pages/MCPStatus'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="sigma/:ruleId" element={<SigmaRuleDetail />} />
           <Route path="yara" element={<YaraRulesPage />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="mcp" element={<MCPStatus />} />
         </Route>
       </Routes>
     </BrowserRouter>

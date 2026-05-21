@@ -45,6 +45,14 @@ export default function Layout() {
             >
               📄 Reports
             </NavLink>
+            <NavLink
+              to="/mcp"
+              className={({ isActive }) =>
+                `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
+              }
+            >
+              🔌 MCP Tools
+            </NavLink>
             {DISABLED_NAV.map((item) => (
               <button
                 key={item.label}
@@ -64,7 +72,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 13
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 14
       </footer>
     </div>
   )
