@@ -199,7 +199,8 @@ export default function CaseDetail() {
         </div>
       </div>
 
-      <div className="section-title" style={{ marginBottom: 16 }}>Investigation</div>
+      {/* Evidence */}
+      <div className="case-section-label">Evidence</div>
 
       <EvidencePanel
         caseId={caseData.id}
@@ -208,6 +209,9 @@ export default function CaseDetail() {
         error={evidenceError}
         onUpload={handleEvidenceUploaded}
       />
+
+      {/* Analysis */}
+      <div className="case-section-label">Analysis</div>
 
       <WindowsAnalysisPanel
         caseId={caseData.id}
@@ -250,17 +254,26 @@ export default function CaseDetail() {
         onRunComplete={handleAnalysisComplete}
       />
 
+      {/* Correlation & Intelligence */}
+      <div className="case-section-label">Correlation &amp; Intelligence</div>
+
       <CorrelationPanel
         caseId={caseData.id}
         onAnalysisComplete={handleAnalysisComplete}
       />
 
-      <TimelinePanel key={timelineKey} caseId={caseData.id} />
-
       <MitrePanel
         caseId={caseData.id}
         onAnalysisComplete={handleAnalysisComplete}
       />
+
+      {/* Timeline */}
+      <div className="case-section-label">Timeline</div>
+
+      <TimelinePanel key={timelineKey} caseId={caseData.id} />
+
+      {/* Reporting & AI */}
+      <div className="case-section-label">Reporting &amp; AI</div>
 
       <ReportPanel
         caseId={caseData.id}

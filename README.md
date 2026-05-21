@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 15 — Splunk Export Support and SPL Query Assistant. Elastic export support coming in the next phase.
+**Status:** Phase 17 — Analyst Dashboard and UX Polish. All 15 analysis modules complete.
 
 ---
 
@@ -150,8 +150,20 @@ soc-copilot-workbench/
 | `/cases/{id}/analyze/splunk-export` | GET | List normalized Splunk events for a case |
 | `/splunk/query-templates` | GET | List all SPL query templates |
 | `/splunk/query-assistant` | POST | Match investigation intent to an SPL template |
+| `/cases/{id}/analyze/elastic-export` | POST | Parse uploaded Kibana/Elasticsearch export |
+| `/cases/{id}/analyze/elastic-export` | GET | List normalized Elastic events for a case |
+| `/elastic/hunt-templates` | GET | List all KQL/ES\|QL hunt templates |
+| `/elastic/hunt-assistant` | POST | Match investigation intent to a KQL/ES\|QL hunt template |
+| `/dashboard/summary` | GET | Aggregate counts and recent activity for the dashboard |
 
 Interactive API docs available at http://localhost:8000/docs
+
+---
+
+## Screenshots
+
+> Add screenshots to `docs/screenshots/` and update this section.
+> See [docs/ui-overview.md](docs/ui-overview.md) for guidance on what to capture.
 
 ---
 
@@ -183,6 +195,8 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 13: AI investigation assistant
 - [x] Phase 14: MCP tool server
 - [x] Phase 15: Splunk export support and SPL query assistant
+- [x] Phase 16: Elastic export support and KQL/ES|QL hunt assistant
+- [x] Phase 17: Analyst dashboard and UX polish
 
 ---
 
