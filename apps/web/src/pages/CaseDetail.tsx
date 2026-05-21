@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getCase, updateCase, deleteCase, type Case } from '../api/cases'
+import { getEvidence, type Evidence } from '../api/evidence'
 import SeverityBadge from '../components/SeverityBadge'
 import StatusBadge from '../components/StatusBadge'
 import EvidencePanel from '../components/EvidencePanel'
 import TimelinePanel from '../components/TimelinePanel'
+import WindowsAnalysisPanel from '../components/WindowsAnalysisPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -21,12 +23,28 @@ export default function CaseDetail() {
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
 
+  // Evidence state owned here and shared with EvidencePanel + analysis panels
+  const [evidence, setEvidence] = useState<Evidence[]>([])
+  const [evidenceLoading, setEvidenceLoading] = useState(true)
+  const [evidenceError, setEvidenceError] = useState<string | null>(null)
+
+  // Incrementing key forces TimelinePanel to re-mount and refetch after analysis
+  const [timelineKey, setTimelineKey] = useState(0)
+
   useEffect(() => {
     if (!id) return
     getCase(Number(id))
       .then(setCaseData)
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
+  }, [id])
+
+  useEffect(() => {
+    if (!id) return
+    getEvidence(Number(id))
+      .then(setEvidence)
+      .catch((e: Error) => setEvidenceError(e.message))
+      .finally(() => setEvidenceLoading(false))
   }, [id])
 
   async function handleFieldUpdate(field: string, value: string) {
@@ -50,6 +68,14 @@ export default function CaseDetail() {
       setError(e instanceof Error ? e.message : 'Failed to delete case')
       setDeleting(false)
     }
+  }
+
+  function handleEvidenceUploaded(ev: Evidence) {
+    setEvidence(prev => [ev, ...prev])
+  }
+
+  function handleAnalysisComplete() {
+    setTimelineKey(k => k + 1)
   }
 
   if (loading) return <div className="state-box">Loading case…</div>
@@ -165,9 +191,21 @@ export default function CaseDetail() {
 
       <div className="section-title" style={{ marginBottom: 16 }}>Investigation</div>
 
-      <EvidencePanel caseId={caseData.id} />
+      <EvidencePanel
+        caseId={caseData.id}
+        items={evidence}
+        loading={evidenceLoading}
+        error={evidenceError}
+        onUpload={handleEvidenceUploaded}
+      />
 
-      <TimelinePanel caseId={caseData.id} />
+      <WindowsAnalysisPanel
+        caseId={caseData.id}
+        evidence={evidence}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
+
+      <TimelinePanel key={timelineKey} caseId={caseData.id} />
 
       <div className="future-section">
         <strong>Detection Findings</strong>

@@ -61,9 +61,41 @@
 
 **`timeline_events`** — chronological events built from parsed evidence (timestamp, source, event_type, description, severity)
 
-### Phase 4–9 — Parsed Events & Findings
+---
 
-**`normalized_events`** — structured events extracted from Windows/Sysmon/Suricata/Zeek logs
+## Phase 4 — Windows / Sysmon Log Parser
+
+### `normalized_events` table
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | NO | autoincrement | Primary key |
+| `case_id` | INTEGER | NO | — | FK → cases.id (CASCADE DELETE) |
+| `evidence_id` | INTEGER | NO | — | FK → evidence.id (CASCADE DELETE) |
+| `timestamp` | DATETIME | YES | NULL | Event timestamp (parsed from log) |
+| `source` | VARCHAR | NO | `windows_logs` | Log source type |
+| `host` | VARCHAR | YES | NULL | Hostname |
+| `user` | VARCHAR | YES | NULL | Account name |
+| `event_id` | VARCHAR | YES | NULL | Windows/Sysmon Event ID |
+| `event_name` | VARCHAR | YES | NULL | Human-readable event name |
+| `process_name` | VARCHAR | YES | NULL | Process image path |
+| `parent_process_name` | VARCHAR | YES | NULL | Parent process image path |
+| `command_line` | TEXT | YES | NULL | Full command line |
+| `source_ip` | VARCHAR | YES | NULL | Source IP address |
+| `destination_ip` | VARCHAR | YES | NULL | Destination IP address |
+| `destination_port` | VARCHAR | YES | NULL | Destination port |
+| `severity` | VARCHAR | NO | `info` | Normalised severity |
+| `description` | TEXT | YES | NULL | Event description |
+| `raw_json` | TEXT | YES | NULL | Original raw record as JSON |
+| `created_at` | DATETIME | NO | `now()` | DB insertion timestamp (UTC) |
+
+---
+
+## Future Phases
+
+### Phase 5–9 — Parsed Events & Findings
+
+**`normalized_events`** (extended) — structured events extracted from Suricata/Zeek logs
 
 **`detection_findings`** — Sigma rule matches and suspicious pattern detections
 

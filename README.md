@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 3 — Evidence upload and timeline. Parsers and detection modules coming in subsequent phases.
+**Status:** Phase 4 — Windows/Sysmon log parser. Suricata, Sigma, YARA, and other modules coming in subsequent phases.
 
 ---
 
@@ -116,6 +116,8 @@ soc-copilot-workbench/
 | `/cases/{id}/evidence` | POST | Upload evidence file (multipart) |
 | `/cases/{id}/timeline` | GET | List timeline events (chronological) |
 | `/cases/{id}/timeline` | POST | Add a manual timeline event |
+| `/cases/{id}/analyze/windows-logs` | POST | Run Windows/Sysmon log analysis on evidence file |
+| `/cases/{id}/analyze/windows-logs` | GET | List normalized events for a case |
 
 Interactive API docs available at http://localhost:8000/docs
 
@@ -137,7 +139,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 1: Architecture skeleton
 - [x] Phase 2: Case management
 - [x] Phase 3: Evidence upload and timeline
-- [ ] Phase 4: Windows/Sysmon log parser
+- [x] Phase 4: Windows/Sysmon log parser
 - [ ] Phase 5: Suricata IDS alert analysis
 - [ ] Phase 6: Sigma rule library
 - [ ] Phase 7: Basic Sigma matching

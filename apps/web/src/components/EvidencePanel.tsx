@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { getEvidence, uploadEvidence, type Evidence } from '../api/evidence'
+import { useRef, useState } from 'react'
+import { uploadEvidence, type Evidence } from '../api/evidence'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -16,23 +16,17 @@ function formatDate(iso: string) {
 
 interface Props {
   caseId: number
+  items: Evidence[]
+  loading: boolean
+  error: string | null
+  onUpload: (ev: Evidence) => void
 }
 
-export default function EvidencePanel({ caseId }: Props) {
-  const [items, setItems] = useState<Evidence[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default function EvidencePanel({ caseId, items, loading, error, onUpload }: Props) {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [notes, setNotes] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    getEvidence(caseId)
-      .then(setItems)
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [caseId])
 
   async function handleUpload() {
     const file = fileRef.current?.files?.[0]
@@ -41,7 +35,7 @@ export default function EvidencePanel({ caseId }: Props) {
     setUploadError(null)
     try {
       const ev = await uploadEvidence(caseId, file, notes)
-      setItems(prev => [ev, ...prev])
+      onUpload(ev)
       setNotes('')
       if (fileRef.current) fileRef.current.value = ''
     } catch (e: unknown) {
