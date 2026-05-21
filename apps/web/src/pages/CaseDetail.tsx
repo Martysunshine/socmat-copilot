@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getCase, updateCase, deleteCase, type Case } from '../api/cases'
 import SeverityBadge from '../components/SeverityBadge'
 import StatusBadge from '../components/StatusBadge'
+import EvidencePanel from '../components/EvidencePanel'
+import TimelinePanel from '../components/TimelinePanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -161,17 +163,11 @@ export default function CaseDetail() {
         </div>
       </div>
 
-      <div className="section-title" style={{ marginBottom: 16 }}>Investigation Sections</div>
+      <div className="section-title" style={{ marginBottom: 16 }}>Investigation</div>
 
-      <div className="future-section">
-        <strong>Evidence &amp; Files</strong>
-        Upload log files, suspicious executables, and network captures — coming in Phase 3
-      </div>
+      <EvidencePanel caseId={caseData.id} />
 
-      <div className="future-section">
-        <strong>Investigation Timeline</strong>
-        Chronological event timeline built from parsed evidence — coming in Phase 3
-      </div>
+      <TimelinePanel caseId={caseData.id} />
 
       <div className="future-section">
         <strong>Detection Findings</strong>

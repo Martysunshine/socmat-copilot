@@ -20,6 +20,39 @@
 
 ---
 
+## Phase 3 — Evidence & Timeline
+
+### `evidence` table
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | NO | autoincrement | Primary key |
+| `case_id` | INTEGER | NO | — | FK → cases.id (CASCADE DELETE) |
+| `filename` | VARCHAR | NO | — | UUID-prefixed stored filename |
+| `original_filename` | VARCHAR | NO | — | Filename as uploaded |
+| `file_type` | VARCHAR | YES | NULL | MIME type |
+| `file_size` | INTEGER | NO | — | File size in bytes |
+| `sha256` | VARCHAR | NO | — | SHA-256 hex digest |
+| `storage_path` | VARCHAR | NO | — | Absolute path on local disk |
+| `uploaded_at` | DATETIME | NO | `now()` | Upload timestamp (UTC) |
+| `notes` | TEXT | YES | NULL | Optional analyst notes |
+
+### `timeline_events` table
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | INTEGER | NO | autoincrement | Primary key |
+| `case_id` | INTEGER | NO | — | FK → cases.id (CASCADE DELETE) |
+| `timestamp` | DATETIME | NO | — | When the event occurred |
+| `source` | VARCHAR | NO | `manual` | `manual` \| `windows_logs` \| `suricata` \| `zeek` \| `sigma` \| `yara` \| `correlation` |
+| `event_type` | VARCHAR | NO | — | Short label (e.g. Logon, Process Creation) |
+| `description` | TEXT | NO | — | Human-readable event description |
+| `severity` | VARCHAR | NO | `info` | `info` \| `low` \| `medium` \| `high` \| `critical` |
+| `raw_reference` | TEXT | YES | NULL | Original log line or supporting text |
+| `created_at` | DATETIME | NO | `now()` | DB insertion timestamp (UTC) |
+
+---
+
 ## Future Phases
 
 ### Phase 3 — Evidence & Timeline
