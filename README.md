@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 5 — Suricata IDS/IPS alert analysis. Sigma, YARA, Zeek, and other modules coming in subsequent phases.
+**Status:** Phase 6 — Sigma rule library and rule explainer. YARA, Zeek, and other modules coming in subsequent phases.
 
 ---
 
@@ -120,6 +120,11 @@ soc-copilot-workbench/
 | `/cases/{id}/analyze/windows-logs` | GET | List normalized events for a case |
 | `/cases/{id}/analyze/suricata` | POST | Run Suricata IDS/IPS alert analysis on evidence file |
 | `/cases/{id}/analyze/suricata` | GET | List Suricata normalized events for a case |
+| `/sigma/rules` | GET | List all Sigma rules (filterable by level, logsource, tag) |
+| `/sigma/rules/{rule_id}` | GET | Get Sigma rule detail with human-readable explanation |
+| `/sigma/rules/reload` | POST | Reload Sigma rules from disk |
+| `/cases/{id}/sigma/rules` | POST | Attach Sigma rule to a case |
+| `/cases/{id}/sigma/rules` | GET | List Sigma rules attached to a case |
 
 Interactive API docs available at http://localhost:8000/docs
 
@@ -143,7 +148,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 3: Evidence upload and timeline
 - [x] Phase 4: Windows/Sysmon log parser
 - [x] Phase 5: Suricata IDS alert analysis
-- [ ] Phase 6: Sigma rule library
+- [x] Phase 6: Sigma rule library
 - [ ] Phase 7: Basic Sigma matching
 - [ ] Phase 8: YARA static malware triage
 - [ ] Phase 9: Zeek network log analysis
