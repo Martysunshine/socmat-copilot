@@ -2068,6 +2068,107 @@ select option {
   color: var(--text-muted);
 }
 
+/* AI Assistant Panel */
+.ai-provider-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.ai-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.ai-result {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ai-result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.ai-confidence {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.ai-confidence--insufficient { background: #30211e; color: #f87171; }
+.ai-confidence--low          { background: #2c2310; color: #fb923c; }
+.ai-confidence--medium       { background: #2a2710; color: #fbbf24; }
+.ai-confidence--high         { background: #0f2d1f; color: #4ade80; }
+
+.ai-incident-type {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.ai-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.ai-section:last-of-type {
+  border-bottom: none;
+}
+
+.ai-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.ai-summary {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.ai-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.ai-list li {
+  margin-bottom: 3px;
+}
+.ai-list--gap li {
+  color: #fb923c;
+}
+
+.ai-disclaimer {
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  font-style: italic;
+}
+
 /* Footer */
 .footer {
   border-top: 1px solid var(--border);

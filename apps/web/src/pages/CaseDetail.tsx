@@ -14,6 +14,7 @@ import ZeekPanel from '../components/ZeekPanel'
 import CorrelationPanel from '../components/CorrelationPanel'
 import MitrePanel from '../components/MitrePanel'
 import ReportPanel from '../components/ReportPanel'
+import AIAssistantPanel from '../components/AIAssistantPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -251,6 +252,8 @@ export default function CaseDetail() {
         caseId={caseData.id}
         caseTitle={caseData.title}
       />
+
+      <AIAssistantPanel caseId={caseData.id} />
     </>
   )
 }
