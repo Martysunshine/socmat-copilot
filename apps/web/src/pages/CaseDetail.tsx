@@ -12,6 +12,7 @@ import SigmaRunPanel from '../components/SigmaRunPanel'
 import YaraPanel from '../components/YaraPanel'
 import ZeekPanel from '../components/ZeekPanel'
 import CorrelationPanel from '../components/CorrelationPanel'
+import MitrePanel from '../components/MitrePanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -240,10 +241,10 @@ export default function CaseDetail() {
 
       <TimelinePanel key={timelineKey} caseId={caseData.id} />
 
-      <div className="future-section">
-        <strong>MITRE ATT&amp;CK Mapping</strong>
-        Tactics and techniques mapped from findings — coming in Phase 11
-      </div>
+      <MitrePanel
+        caseId={caseData.id}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
 
       <div className="future-section">
         <strong>Incident Report</strong>

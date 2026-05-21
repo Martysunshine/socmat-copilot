@@ -1790,6 +1790,146 @@ select option {
   border-top: 1px solid var(--border);
 }
 
+/* MITRE ATT&CK Panel */
+.mitre-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.mitre-summary-sep {
+  color: var(--border);
+}
+
+.mitre-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.mitre-tactic-group {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.mitre-tactic-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.mitre-techniques {
+  display: flex;
+  flex-direction: column;
+}
+
+.mitre-technique {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mitre-technique:last-child {
+  border-bottom: none;
+}
+
+.mitre-technique-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mitre-technique-id {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(88, 166, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.mitre-technique-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+}
+
+.mitre-conf-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.mitre-evidence {
+  margin-top: 8px;
+}
+
+.mitre-evidence-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mitre-evidence-toggle:hover {
+  color: var(--text-secondary);
+}
+
+.mitre-evidence-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mitre-evidence-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.mitre-evidence-source {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mitre-evidence-detail {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 /* Footer */
 .footer {
   border-top: 1px solid var(--border);

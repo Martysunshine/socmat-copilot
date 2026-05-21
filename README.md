@@ -18,7 +18,7 @@ SOC Copilot Workbench is an interactive analyst workbench where you can:
 - Map findings to MITRE ATT&CK
 - Generate structured Security Incident Reports
 
-**Status:** Phase 10 — Investigation correlation engine. MITRE ATT&CK mapping and other modules coming in subsequent phases.
+**Status:** Phase 11 — MITRE ATT&CK mapping. Incident report generator and other modules coming in subsequent phases.
 
 ---
 
@@ -135,6 +135,9 @@ soc-copilot-workbench/
 | `/cases/{id}/analyze/zeek` | GET | List Zeek analysis results for a case |
 | `/cases/{id}/correlate` | POST | Run investigation correlation across all modules |
 | `/cases/{id}/correlate` | GET | List correlated findings for a case |
+| `/mitre/mappings` | GET | List local MITRE ATT&CK technique catalog |
+| `/cases/{id}/mitre/map` | POST | Run ATT&CK mapping for a case |
+| `/cases/{id}/mitre/map` | GET | List ATT&CK mappings for a case |
 
 Interactive API docs available at http://localhost:8000/docs
 
@@ -163,7 +166,7 @@ See [docs/architecture.md](docs/architecture.md) for the full planned architectu
 - [x] Phase 8: YARA static malware triage
 - [x] Phase 9: Zeek network log analysis
 - [x] Phase 10: Investigation correlation engine
-- [ ] Phase 11: MITRE ATT&CK mapping
+- [x] Phase 11: MITRE ATT&CK mapping
 - [ ] Phase 12: Security Incident Report generator
 - [ ] Phase 13: AI investigation assistant
 - [ ] Phase 14: MCP tool server
