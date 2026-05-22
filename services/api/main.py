@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
-from routers import health, cases, evidence, timeline, windows_logs, suricata, sigma, yara as yara_router, zeek as zeek_router, correlation as correlation_router, mitre as mitre_router, reports as reports_router, ai_assistant as ai_assistant_router, mcp_status as mcp_status_router, splunk as splunk_router, splunk_live as splunk_live_router, elastic as elastic_router, elastic_live as elastic_live_router, dashboard as dashboard_router, pcap as pcap_router, rule_authoring as rule_authoring_router, playbooks as playbooks_router, analyst_notes as analyst_notes_router, iocs as iocs_router
+from routers import health, cases, evidence, timeline, windows_logs, suricata, sigma, yara as yara_router, zeek as zeek_router, correlation as correlation_router, mitre as mitre_router, reports as reports_router, ai_assistant as ai_assistant_router, mcp_status as mcp_status_router, splunk as splunk_router, splunk_live as splunk_live_router, elastic as elastic_router, elastic_live as elastic_live_router, dashboard as dashboard_router, pcap as pcap_router, rule_authoring as rule_authoring_router, playbooks as playbooks_router, analyst_notes as analyst_notes_router, iocs as iocs_router, graph as graph_router
 
 
 @asynccontextmanager
@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SOC Copilot Workbench API",
     description="Local-first defensive SOC automation platform",
-    version="0.28.0",
+    version="0.29.0",
     lifespan=lifespan,
 )
 
@@ -53,4 +53,5 @@ app.include_router(rule_authoring_router.router)
 app.include_router(playbooks_router.router)
 app.include_router(analyst_notes_router.router)
 app.include_router(iocs_router.router)
+app.include_router(graph_router.router)
 app.include_router(dashboard_router.router)

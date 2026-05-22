@@ -4,7 +4,6 @@ import {
   getPcapResults,
   type PcapAnalysisResult,
   type PcapFinding,
-  type PcapTopTalker,
 } from '../api/pcap'
 import { type Evidence } from '../api/evidence'
 

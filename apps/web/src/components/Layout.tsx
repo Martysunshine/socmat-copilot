@@ -120,7 +120,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 28
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 29
       </footer>
     </div>
   )

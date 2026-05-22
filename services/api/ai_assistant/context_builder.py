@@ -209,4 +209,38 @@ def build_case_context(db: Session, case_id: int) -> dict:
             }
             for i in iocs
         ],
+        "entity_graph_summary": _build_entity_summary(case, db, case_id),
+    }
+
+
+def _build_entity_summary(case, db: Session, case_id: int) -> dict:
+    from collections import Counter
+    from models.normalized_event import NormalizedEvent
+
+    norm_events = (
+        db.query(NormalizedEvent)
+        .filter(NormalizedEvent.case_id == case_id)
+        .all()
+    )
+    hosts: Counter = Counter()
+    users: Counter = Counter()
+    ips: Counter = Counter()
+    processes: Counter = Counter()
+    for ev in norm_events:
+        if ev.host:
+            hosts[ev.host] += 1
+        if ev.user:
+            users[ev.user] += 1
+        for ip in [ev.source_ip, ev.destination_ip]:
+            if ip:
+                ips[ip] += 1
+        if ev.process_name:
+            processes[ev.process_name] += 1
+
+    return {
+        "key_hosts": [h for h, _ in hosts.most_common(8)],
+        "key_users": [u for u, _ in users.most_common(8)],
+        "key_ips": [ip for ip, _ in ips.most_common(8)],
+        "key_processes": [p for p, _ in processes.most_common(8)],
+        "_note": "Derived from normalized events. Use GET /cases/{id}/graph for full interactive graph.",
     }

@@ -34,6 +34,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Analyst Playbooks** | 10 built-in investigation playbooks for common alert types; step-by-step checklists; analyst notes per step; auto-suggestion from case findings; playbook progress in reports |
 | **Analyst Notes** | Attach notes (observations, hypotheses, decisions, escalations, false-positive reasoning) to any case entity; filter by type; notes included in incident reports; AI assistant treats them as analyst opinion |
 | **IOC Basket** | Auto-extract IOCs from all case data (IPs, domains, URLs, hashes, hosts, users, processes, paths, ports, user agents); 16 IOC types; analyst tagging; confidence levels; copy/CSV/JSON export; manual entry; IOC section in reports |
+| **Investigation Map** | Interactive entity graph built from all case data; 14+ node types (hosts, users, IPs, domains, processes, hashes, Sigma/YARA/Suricata rules, MITRE techniques, correlated findings, IOCs); per-type filter toggles; node/edge click detail; export graph JSON |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -336,6 +337,7 @@ soc-copilot-workbench/
 | `/cases/{id}/iocs` | GET / POST | List (filterable) / manually add an IOC |
 | `/cases/{id}/iocs/{ioc_id}` | PATCH / DELETE | Update confidence/tags / delete IOC |
 | `/cases/{id}/iocs/export` | GET | Export IOCs as CSV or JSON (`?format=csv\|json`) |
+| `/cases/{id}/graph` | GET | Build investigation entity graph (filter params: `show_hosts`, `show_users`, `show_ips`, `show_domains`, `show_processes`, `show_detections`, `show_mitre`, `show_iocs`, `show_evidence`, `only_suspicious`) |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -384,7 +386,7 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 26: Analyst playbooks and guided investigation
 - [x] Phase 27: Analyst notes and evidence annotations
 - [x] Phase 28: IOC extraction and IOC basket
-- [ ] Phase 29: Entity graph and investigation map
+- [x] Phase 29: Entity graph and investigation map
 - [ ] Phase 30: Attack timeline replay mode
 - [ ] Phase 31: Detection coverage and telemetry gap analysis
 - [ ] Phase 32: Finding disposition and false positive review

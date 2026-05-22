@@ -9,13 +9,6 @@ import {
   type PlaybookTemplateSummary,
 } from '../api/playbooks'
 
-const SEV_COLOR: Record<string, string> = {
-  critical: 'var(--red)',
-  high: 'var(--orange)',
-  medium: 'var(--yellow)',
-  low: 'var(--green)',
-}
-
 const STATUS_COLOR: Record<string, string> = {
   done: 'var(--green)',
   skipped: 'var(--text-muted)',

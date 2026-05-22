@@ -21,6 +21,7 @@ import ElasticPanel from '../components/ElasticPanel'
 import PlaybookPanel from '../components/PlaybookPanel'
 import NotesPanel from '../components/NotesPanel'
 import IocPanel from '../components/IocPanel'
+import GraphPanel from '../components/GraphPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -296,6 +297,11 @@ export default function CaseDetail() {
       <div className="case-section-label">IOC Basket</div>
 
       <IocPanel caseId={caseData.id} />
+
+      {/* Investigation Map */}
+      <div className="case-section-label">Investigation Map</div>
+
+      <GraphPanel caseId={caseData.id} />
 
       {/* Reporting & AI */}
       <div className="case-section-label">Reporting &amp; AI</div>

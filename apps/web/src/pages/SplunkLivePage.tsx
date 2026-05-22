@@ -103,7 +103,7 @@ export default function SplunkLivePage() {
     }
   }
 
-  const notConfigured = status && !status.configured
+  const notConfigured = status != null && !status.configured
 
   return (
     <>
