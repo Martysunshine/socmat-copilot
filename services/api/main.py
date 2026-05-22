@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db
-from routers import health, cases, evidence, timeline, windows_logs, suricata, sigma, yara as yara_router, zeek as zeek_router, correlation as correlation_router, mitre as mitre_router, reports as reports_router, ai_assistant as ai_assistant_router, mcp_status as mcp_status_router, splunk as splunk_router, splunk_live as splunk_live_router, elastic as elastic_router, dashboard as dashboard_router
+from routers import health, cases, evidence, timeline, windows_logs, suricata, sigma, yara as yara_router, zeek as zeek_router, correlation as correlation_router, mitre as mitre_router, reports as reports_router, ai_assistant as ai_assistant_router, mcp_status as mcp_status_router, splunk as splunk_router, splunk_live as splunk_live_router, elastic as elastic_router, elastic_live as elastic_live_router, dashboard as dashboard_router
 
 
 @asynccontextmanager
@@ -45,4 +45,5 @@ app.include_router(mcp_status_router.router)
 app.include_router(splunk_router.router)
 app.include_router(splunk_live_router.router)
 app.include_router(elastic_router.router)
+app.include_router(elastic_live_router.router)
 app.include_router(dashboard_router.router)

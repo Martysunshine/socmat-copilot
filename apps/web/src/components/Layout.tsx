@@ -70,6 +70,14 @@ export default function Layout() {
               🔎 Elastic
             </NavLink>
             <NavLink
+              to="/elastic-live"
+              className={({ isActive }) =>
+                `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
+              }
+            >
+              ⚡ Elastic Live
+            </NavLink>
+            <NavLink
               to="/mcp"
               className={({ isActive }) =>
                 `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
@@ -96,7 +104,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 22
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 23
       </footer>
     </div>
   )

@@ -30,20 +30,11 @@ This document describes the full planned build progression. Each phase produces 
 | 20 | GitHub-Ready README and Open Source Polish | Rewritten README, CONTRIBUTING.md, SECURITY.md, roadmap |
 | 21 | PDF Report Export | `GET /cases/{id}/report/pdf` endpoint; fpdf2-based styled PDF; Download PDF button in UI |
 | 22 | Live Splunk Connector | `SPLUNK_URL`/`SPLUNK_TOKEN` env-var credentials; connection test; predefined SPL template runner; custom SPL; query history with sample storage |
+| 23 | Live Elastic Connector | `ELASTIC_URL`/`ELASTIC_API_KEY` env-var credentials; connection test via `/_cluster/health`; predefined ES\|QL hunt template runner; custom ES\|QL; query history with sample storage |
 
 ---
 
 ## Planned Phases
-
-### Phase 23 — Live Elastic Connector
-
-Query a live Elasticsearch/Kibana instance directly from the workbench.
-
-- Elastic REST API with `ELASTIC_URL`/`ELASTIC_API_KEY` env vars
-- Connection test endpoint
-- Run predefined KQL/ES|QL hunt templates against live data
-- Store only query metadata and selected results
-- Credential input via environment variables only — never stored in SQLite
 
 ### Phase 24 — PCAP / Network Traffic Analysis
 

@@ -12,6 +12,7 @@ import MCPStatus from './pages/MCPStatus'
 import SplunkPage from './pages/SplunkPage'
 import SplunkLivePage from './pages/SplunkLivePage'
 import ElasticPage from './pages/ElasticPage'
+import ElasticLivePage from './pages/ElasticLivePage'
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="splunk" element={<SplunkPage />} />
           <Route path="splunk-live" element={<SplunkLivePage />} />
           <Route path="elastic" element={<ElasticPage />} />
+          <Route path="elastic-live" element={<ElasticLivePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
