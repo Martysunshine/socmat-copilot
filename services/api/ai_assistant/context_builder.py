@@ -7,6 +7,7 @@ import json
 from sqlalchemy.orm import Session
 
 from models.case import Case
+from models.case_playbook import CasePlaybook
 from models.evidence import Evidence
 from models.timeline_event import TimelineEvent
 from models.detection_finding import DetectionFinding
@@ -72,6 +73,12 @@ def build_case_context(db: Session, case_id: int) -> dict:
         db.query(CaseMitreMapping)
         .filter(CaseMitreMapping.case_id == case_id)
         .order_by(CaseMitreMapping.tactic, CaseMitreMapping.technique_id)
+        .all()
+    )
+    playbooks = (
+        db.query(CasePlaybook)
+        .filter(CasePlaybook.case_id == case_id)
+        .order_by(CasePlaybook.created_at)
         .all()
     )
 
@@ -152,5 +159,18 @@ def build_case_context(db: Session, case_id: int) -> dict:
                 "confidence": m.confidence,
             }
             for m in mitre_mappings
+        ],
+        "playbook_progress": [
+            {
+                "name": pb.name,
+                "status": pb.status,
+                "progress_percent": pb.progress_percent,
+                "pending_steps": [
+                    {"title": s.title, "description": s.description}
+                    for s in pb.steps
+                    if s.status == "pending"
+                ],
+            }
+            for pb in playbooks
         ],
     }

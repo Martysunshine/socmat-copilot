@@ -31,6 +31,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Live Elastic Connector** | Query a live Elasticsearch instance via ES\|QL; run predefined hunt templates; env-var credentials only |
 | **PCAP Analysis** | Static PCAP/PCAPNG analysis — top talkers, protocol distribution, DNS, HTTP, TLS/SNI, beaconing and DGA detection |
 | **Rule Authoring Assistant** | Draft Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL from a detection description; false positive notes, log source requirements, and validation warnings |
+| **Analyst Playbooks** | 10 built-in investigation playbooks for common alert types; step-by-step checklists; analyst notes per step; auto-suggestion from case findings; playbook progress in reports |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -323,6 +324,10 @@ soc-copilot-workbench/
 | `/dashboard/summary` | GET | Dashboard aggregate metrics |
 | `/rules/author` | POST | Generate Sigma/SPL/KQL/ES\|QL rule drafts |
 | `/rules/author/event-types` | GET | List supported event types |
+| `/playbooks/templates` | GET | List all playbook templates |
+| `/playbooks/templates/{id}` | GET | Get template detail with steps |
+| `/cases/{id}/playbooks` | GET / POST | List case playbooks + suggestions / attach a playbook |
+| `/cases/{id}/playbooks/{playbook_id}/steps/{step_id}` | PATCH | Update step status / analyst notes |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -368,6 +373,14 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 23: Live Elastic connector
 - [x] Phase 24: PCAP / network traffic analysis
 - [x] Phase 25: Detection rule authoring assistant
+- [x] Phase 26: Analyst playbooks and guided investigation
+- [ ] Phase 27: Analyst notes and evidence annotations
+- [ ] Phase 28: IOC extraction and IOC basket
+- [ ] Phase 29: Entity graph and investigation map
+- [ ] Phase 30: Attack timeline replay mode
+- [ ] Phase 31: Detection coverage and telemetry gap analysis
+- [ ] Phase 32: Finding disposition and false positive review
+- [ ] Phase 33: Report readiness score
 
 ---
 

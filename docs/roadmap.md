@@ -33,12 +33,21 @@ This document describes the full planned build progression. Each phase produces 
 | 23 | Live Elastic Connector | `ELASTIC_URL`/`ELASTIC_API_KEY` env-var credentials; connection test via `/_cluster/health`; predefined ES\|QL hunt template runner; custom ES\|QL; query history with sample storage |
 | 24 | PCAP Network Traffic Analysis | Static-only PCAP/PCAPNG analysis via `dpkt`; top talkers, protocol distribution, DNS, HTTP, TLS/SNI; beaconing, DGA, port-scan, large-transfer detection; findings added to timeline |
 | 25 | Detection Rule Authoring Assistant | Template-based Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL drafts from a description; auto event-type detection; false positive notes, log source requirements, and validation warnings |
+| 26 | Analyst Playbooks and Guided Investigation | 10 built-in step-by-step investigation playbooks for common alert types; per-step status tracking; analyst notes; auto-suggestion from case findings; playbook progress in reports and AI context |
 
 ---
 
 ## Planned Phases
 
-No further phases are currently scheduled. See [CONTRIBUTING.md](../CONTRIBUTING.md) to propose new phases.
+| Phase | Name |
+|-------|------|
+| 27 | Analyst Notes and Evidence Annotations |
+| 28 | IOC Extraction and IOC Basket |
+| 29 | Entity Graph and Investigation Map |
+| 30 | Attack Timeline Replay Mode |
+| 31 | Detection Coverage and Telemetry Gap Analysis |
+| 32 | Finding Disposition and False Positive Review |
+| 33 | Report Readiness Score |
 
 ---
 

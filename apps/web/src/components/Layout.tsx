@@ -93,6 +93,14 @@ export default function Layout() {
             >
               ✏️ Rule Author
             </NavLink>
+            <NavLink
+              to="/playbooks"
+              className={({ isActive }) =>
+                `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
+              }
+            >
+              📋 Playbooks
+            </NavLink>
             {DISABLED_NAV.map((item) => (
               <button
                 key={item.label}
@@ -112,7 +120,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 25
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 26
       </footer>
     </div>
   )

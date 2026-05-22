@@ -15,6 +15,7 @@ from typing import List, Tuple
 from sqlalchemy.orm import Session
 
 from models.case import Case
+from models.case_playbook import CasePlaybook
 from models.evidence import Evidence
 from models.timeline_event import TimelineEvent
 from models.normalized_event import NormalizedEvent
@@ -100,10 +101,17 @@ def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
         .order_by(CaseMitreMapping.tactic, CaseMitreMapping.technique_id)
         .all()
     )
+    playbooks = (
+        db.query(CasePlaybook)
+        .filter(CasePlaybook.case_id == case_id)
+        .order_by(CasePlaybook.created_at)
+        .all()
+    )
 
     md = _build_report(
         case, evidence, timeline, norm_events,
         det_findings, yara_results, net_results, corr_findings, mitre_mappings,
+        playbooks,
     )
 
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -152,6 +160,7 @@ def _load_json(value, fallback=None):
 def _build_report(
     case, evidence, timeline, norm_events,
     det_findings, yara_results, net_results, corr_findings, mitre_mappings,
+    playbooks=None,
 ) -> str:
     lines: List[str] = []
 
@@ -395,9 +404,31 @@ def _build_report(
     else:
         add('No MITRE ATT&CK mappings generated. Run ATT&CK mapping on the case first.')
 
-    # ── 12. Analyst Assessment ──────────────────────────────────────────────────
+    # ── 12. Analyst Playbook Progress ──────────────────────────────────────────
     add('')
-    add('## 12. Analyst Assessment')
+    add('## 12. Analyst Playbook Progress')
+    add('')
+    if playbooks:
+        for pb in playbooks:
+            status_label = pb.status.replace("_", " ").title()
+            add(f'### {pb.name}')
+            add('')
+            add(f'- **Status:** {status_label}')
+            add(f'- **Progress:** {pb.progress_percent}%')
+            add('')
+            if pb.steps:
+                for step in sorted(pb.steps, key=lambda s: s.step_order):
+                    icon = {'done': '✓', 'skipped': '⏭', 'needs_review': '🔍'}.get(step.status, '○')
+                    add(f'  {icon} **{step.step_order}. {step.title}** `[{step.status}]`')
+                    if step.analyst_notes:
+                        add(f'     - *Analyst notes:* {step.analyst_notes}')
+                add('')
+    else:
+        add('No investigation playbooks were used for this case.')
+
+    # ── 13. Analyst Assessment ──────────────────────────────────────────────────
+    add('')
+    add('## 13. Analyst Assessment')
     add('')
     has_data = any([det_findings, yara_hits, net_results, corr_findings, mitre_mappings])
     if not has_data:
@@ -438,9 +469,9 @@ def _build_report(
             )
         add(''.join(assessment))
 
-    # ── 13. Recommended Actions ─────────────────────────────────────────────────
+    # ── 14. Recommended Actions ─────────────────────────────────────────────────
     add('')
-    add('## 13. Recommended Actions')
+    add('## 14. Recommended Actions')
     add('')
     rec_actions: List[str] = []
     seen_recs: set = set()
@@ -463,9 +494,9 @@ def _build_report(
         add('- Escalate to senior analyst or IR team if indicators of compromise are confirmed.')
         add('- Preserve evidence and document all investigative steps taken.')
 
-    # ── 14. Detection Opportunities ─────────────────────────────────────────────
+    # ── 15. Detection Opportunities ─────────────────────────────────────────────
     add('')
-    add('## 14. Detection Opportunities')
+    add('## 15. Detection Opportunities')
     add('')
     if mitre_mappings:
         add('Based on ATT&CK techniques identified in this case, the following monitoring improvements are recommended:')
@@ -481,9 +512,9 @@ def _build_report(
     else:
         add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
 
-    # ── 15. Final Status ────────────────────────────────────────────────────────
+    # ── 16. Final Status ────────────────────────────────────────────────────────
     add('')
-    add('## 15. Final Status')
+    add('## 16. Final Status')
     add('')
     status_desc = {
         'open': 'Investigation has been opened. Initial triage is pending.',
