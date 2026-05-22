@@ -54,10 +54,10 @@ EVIDENCE_FILES = [
 ]
 
 
-def _ok(resp: requests.Response, label: str) -> dict:
+def _ok(resp: requests.Response, label: str):
     if not resp.ok:
         print(f"  FAIL [{resp.status_code}] {label}: {resp.text[:200]}")
-        return {}
+        return None
     return resp.json() if resp.content else {}
 
 
@@ -117,7 +117,7 @@ def run(api: str, verbose: bool) -> None:
             continue
         r = session.post(
             f"{base}/cases/{case_id}/analyze/windows-logs",
-            json={"evidence_id": eid},
+            params={"evidence_id": eid},
         )
         res = _ok(r, f"windows-logs {fname}")
         if res and verbose:
@@ -132,7 +132,7 @@ def run(api: str, verbose: bool) -> None:
     if eid:
         r = session.post(
             f"{base}/cases/{case_id}/analyze/suricata",
-            json={"evidence_id": eid},
+            params={"evidence_id": eid},
         )
         res = _ok(r, "suricata")
         if res:
@@ -176,15 +176,17 @@ def run(api: str, verbose: bool) -> None:
     print("\nRunning investigation correlation …")
     r = session.post(f"{base}/cases/{case_id}/correlate")
     res = _ok(r, "correlate")
-    if res:
-        print(f"  Done — {res.get('findings_count', '?')} correlated findings")
+    if res is not None:
+        count = len(res) if isinstance(res, list) else res.get('findings_count', '?')
+        print(f"  Done — {count} correlated findings")
 
     # ── MITRE mapping ────────────────────────────────────────────────────────
     print("\nRunning MITRE ATT&CK mapping …")
     r = session.post(f"{base}/cases/{case_id}/mitre/map")
     res = _ok(r, "mitre map")
-    if res:
-        print(f"  Done — {res.get('mappings_count', '?')} technique mappings")
+    if res is not None:
+        count = len(res) if isinstance(res, list) else res.get('mappings_count', '?')
+        print(f"  Done — {count} technique mappings")
 
     # ── generate report ──────────────────────────────────────────────────────
     print("\nGenerating incident report …")
@@ -195,12 +197,12 @@ def run(api: str, verbose: bool) -> None:
 
     # ── summary ─────────────────────────────────────────────────────────────
     print(f"""
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+------------------------------------------------------
  Demo case ready!
 
  Case ID  : {case_id}
  Case URL : http://localhost:5173/cases/{case_id}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+------------------------------------------------------
 """)
 
 
