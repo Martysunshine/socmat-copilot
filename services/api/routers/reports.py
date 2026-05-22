@@ -11,13 +11,14 @@ from pathlib import Path
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, Response
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models.case import Case
 from models.report import Report
 from report_generator import generate_report, _REPO_ROOT
+from pdf_generator import generate_pdf
 from schemas.report_schema import ReportResponse
 
 router = APIRouter(tags=["reports"])
@@ -82,6 +83,19 @@ def get_case_report_content(case_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Report file not found on disk")
 
     return path.read_text(encoding='utf-8')
+
+
+@router.get("/cases/{case_id}/report/pdf")
+def download_case_report_pdf(case_id: int, db: Session = Depends(get_db)):
+    """Generate and return a PDF incident report for a case as a file download."""
+    if not db.query(Case).filter(Case.id == case_id).first():
+        raise HTTPException(status_code=404, detail="Case not found")
+    pdf_bytes = generate_pdf(db, case_id)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=case-{case_id}-incident-report.pdf"},
+    )
 
 
 @router.get("/reports", response_model=List[ReportResponse])

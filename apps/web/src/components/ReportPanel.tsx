@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { generateReport, getReport, getReportContent, type Report } from '../api/reports'
+import { generateReport, getReport, getReportContent, downloadReportPdf, type Report } from '../api/reports'
 
 interface Props {
   caseId: number
@@ -10,6 +10,7 @@ export default function ReportPanel({ caseId, caseTitle }: Props) {
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
   const [previewing, setPreviewing] = useState(false)
   const [previewContent, setPreviewContent] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -67,6 +68,18 @@ export default function ReportPanel({ caseId, caseTitle }: Props) {
     }
   }
 
+  async function handleDownloadPdf() {
+    setDownloadingPdf(true)
+    setError(null)
+    try {
+      await downloadReportPdf(caseId)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'PDF generation failed')
+    } finally {
+      setDownloadingPdf(false)
+    }
+  }
+
   function formatTs(iso: string) {
     return new Date(iso).toLocaleString('en-GB', {
       day: '2-digit', month: 'short', year: 'numeric',
@@ -119,6 +132,13 @@ export default function ReportPanel({ caseId, caseTitle }: Props) {
               onClick={handleDownload}
             >
               Download .md
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={handleDownloadPdf}
+              disabled={downloadingPdf}
+            >
+              {downloadingPdf ? 'Generating PDF…' : 'Download PDF'}
             </button>
           </div>
 

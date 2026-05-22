@@ -236,6 +236,8 @@ The `/mcp/tools` endpoint exposes case data as MCP tools, allowing Claude Deskto
 
 Reports are saved to `reports/generated/` and accessible via `GET /cases/{id}/report/content`.
 
+A styled PDF version can be downloaded at any time via `GET /cases/{id}/report/pdf` — no separate generation step required. The PDF mirrors all 15 report sections with color-coded severity, tables, and a header/footer on every page.
+
 ---
 
 ## Security and Safety
@@ -354,7 +356,7 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 18: Testing, sample data, and demo scenario
 - [x] Phase 19: Security hardening and safe defaults
 - [x] Phase 20: GitHub-ready README and open source polish
-- [ ] Phase 21: PDF report export
+- [x] Phase 21: PDF report export
 - [ ] Phase 22: PCAP / network traffic analysis
 - [ ] Phase 23: Real-time Splunk/Elastic API integration
 

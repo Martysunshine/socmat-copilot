@@ -30,3 +30,17 @@ export async function listAllReports(): Promise<Report[]> {
   if (!res.ok) throw new Error(`List reports failed: ${res.status}`)
   return res.json()
 }
+
+export async function downloadReportPdf(caseId: number): Promise<void> {
+  const res = await fetch(`/api/cases/${caseId}/report/pdf`)
+  if (!res.ok) throw new Error(`PDF generation failed: ${res.status}`)
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `case-${caseId}-incident-report.pdf`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}

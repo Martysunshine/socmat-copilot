@@ -28,19 +28,13 @@ This document describes the full planned build progression. Each phase produces 
 | 18 | Testing, Sample Data, and Demo Scenario | pytest unit tests, demo case seed script, safe sample evidence |
 | 19 | Security Hardening and Safe Defaults | 50 MB upload cap, path traversal guard, Pydantic field constraints, security docs |
 | 20 | GitHub-Ready README and Open Source Polish | Rewritten README, CONTRIBUTING.md, SECURITY.md, roadmap |
+| 21 | PDF Report Export | `GET /cases/{id}/report/pdf` endpoint; fpdf2-based styled PDF; Download PDF button in UI |
 
 ---
 
 ## Planned Phases
 
-### Phase 21 — PDF Report Export
-
-Export generated Markdown incident reports to PDF.
-
-- Library: `weasyprint` or `reportlab`
-- `POST /cases/{id}/report/generate?format=pdf`
-- PDF download endpoint
-- Consistent styling with a print-friendly layout
+### Phase 22 — PCAP / Network Traffic Analysis
 
 ### Phase 22 — PCAP / Network Traffic Analysis
 
