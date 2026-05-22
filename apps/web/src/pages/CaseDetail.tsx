@@ -20,6 +20,7 @@ import SplunkPanel from '../components/SplunkPanel'
 import ElasticPanel from '../components/ElasticPanel'
 import PlaybookPanel from '../components/PlaybookPanel'
 import NotesPanel from '../components/NotesPanel'
+import IocPanel from '../components/IocPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -290,6 +291,11 @@ export default function CaseDetail() {
       <div className="case-section-label">Analyst Notes</div>
 
       <NotesPanel caseId={caseData.id} />
+
+      {/* IOC Basket */}
+      <div className="case-section-label">IOC Basket</div>
+
+      <IocPanel caseId={caseData.id} />
 
       {/* Reporting & AI */}
       <div className="case-section-label">Reporting &amp; AI</div>

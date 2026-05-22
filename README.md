@@ -33,6 +33,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Rule Authoring Assistant** | Draft Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL from a detection description; false positive notes, log source requirements, and validation warnings |
 | **Analyst Playbooks** | 10 built-in investigation playbooks for common alert types; step-by-step checklists; analyst notes per step; auto-suggestion from case findings; playbook progress in reports |
 | **Analyst Notes** | Attach notes (observations, hypotheses, decisions, escalations, false-positive reasoning) to any case entity; filter by type; notes included in incident reports; AI assistant treats them as analyst opinion |
+| **IOC Basket** | Auto-extract IOCs from all case data (IPs, domains, URLs, hashes, hosts, users, processes, paths, ports, user agents); 16 IOC types; analyst tagging; confidence levels; copy/CSV/JSON export; manual entry; IOC section in reports |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -331,6 +332,10 @@ soc-copilot-workbench/
 | `/cases/{id}/playbooks/{playbook_id}/steps/{step_id}` | PATCH | Update step status / analyst notes |
 | `/cases/{id}/notes` | GET / POST | List (filterable) / create analyst notes |
 | `/cases/{id}/notes/{note_id}` | PATCH / DELETE | Update / delete an analyst note |
+| `/cases/{id}/iocs/extract` | POST | Extract IOCs from all case data |
+| `/cases/{id}/iocs` | GET / POST | List (filterable) / manually add an IOC |
+| `/cases/{id}/iocs/{ioc_id}` | PATCH / DELETE | Update confidence/tags / delete IOC |
+| `/cases/{id}/iocs/export` | GET | Export IOCs as CSV or JSON (`?format=csv\|json`) |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -378,8 +383,7 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 25: Detection rule authoring assistant
 - [x] Phase 26: Analyst playbooks and guided investigation
 - [x] Phase 27: Analyst notes and evidence annotations
-- [ ] Phase 28: IOC extraction and IOC basket
-- [ ] Phase 28: IOC extraction and IOC basket
+- [x] Phase 28: IOC extraction and IOC basket
 - [ ] Phase 29: Entity graph and investigation map
 - [ ] Phase 30: Attack timeline replay mode
 - [ ] Phase 31: Detection coverage and telemetry gap analysis

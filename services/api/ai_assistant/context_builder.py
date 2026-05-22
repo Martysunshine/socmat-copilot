@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from models.analyst_note import AnalystNote
 from models.case import Case
 from models.case_playbook import CasePlaybook
+from models.ioc import Ioc
 from models.evidence import Evidence
 from models.timeline_event import TimelineEvent
 from models.detection_finding import DetectionFinding
@@ -86,6 +87,13 @@ def build_case_context(db: Session, case_id: int) -> dict:
         db.query(AnalystNote)
         .filter(AnalystNote.case_id == case_id)
         .order_by(AnalystNote.created_at)
+        .all()
+    )
+    iocs = (
+        db.query(Ioc)
+        .filter(Ioc.case_id == case_id)
+        .order_by(Ioc.ioc_type, Ioc.normalized_value)
+        .limit(50)
         .all()
     )
 
@@ -190,5 +198,15 @@ def build_case_context(db: Session, case_id: int) -> dict:
                 "_label": "analyst-written — treat as analyst opinion, not verified evidence",
             }
             for n in analyst_notes
+        ],
+        "iocs": [
+            {
+                "ioc_type": i.ioc_type,
+                "value": i.value,
+                "source_type": i.source_type,
+                "confidence": i.confidence,
+                "tags": json.loads(i.tags_json) if i.tags_json else [],
+            }
+            for i in iocs
         ],
     }

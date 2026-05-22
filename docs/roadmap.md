@@ -35,6 +35,7 @@ This document describes the full planned build progression. Each phase produces 
 | 25 | Detection Rule Authoring Assistant | Template-based Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL drafts from a description; auto event-type detection; false positive notes, log source requirements, and validation warnings |
 | 26 | Analyst Playbooks and Guided Investigation | 10 built-in step-by-step investigation playbooks for common alert types; per-step status tracking; analyst notes; auto-suggestion from case findings; playbook progress in reports and AI context |
 | 27 | Analyst Notes and Evidence Annotations | Polymorphic analyst notes attached to any case entity; 7 note types; filter tabs; inline edit/delete; notes section in reports; AI context labels notes as analyst-written, not verified evidence |
+| 28 | IOC Extraction and IOC Basket | Automatic IOC extraction from all case data sources; 16 IOC types (IPs, domains, URLs, hashes, users, hosts, processes, paths, ports, user agents); deduplication; confidence levels; analyst tagging (suspicious/confirmed malicious/benign/needs review/internal/external); CSV/JSON export; copy; manual add; IOC section in reports; IOC context in AI assistant |
 
 ---
 
@@ -42,8 +43,6 @@ This document describes the full planned build progression. Each phase produces 
 
 | Phase | Name |
 |-------|------|
-| 28 | IOC Extraction and IOC Basket |
-| 28 | IOC Extraction and IOC Basket |
 | 29 | Entity Graph and Investigation Map |
 | 30 | Attack Timeline Replay Mode |
 | 31 | Detection Coverage and Telemetry Gap Analysis |

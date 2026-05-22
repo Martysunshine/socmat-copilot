@@ -1,7 +1,7 @@
 """
 Security Incident Report generator for SOC Copilot Workbench.
 
-Produces a structured 17-section Markdown report from all case data.
+Produces a structured 18-section Markdown report from all case data.
 Reports are saved to reports/generated/ at the repository root.
 All content is derived from stored case data — no AI or invention.
 """
@@ -18,6 +18,7 @@ from models.analyst_note import AnalystNote
 from models.case import Case
 from models.case_playbook import CasePlaybook
 from models.evidence import Evidence
+from models.ioc import Ioc
 from models.timeline_event import TimelineEvent
 from models.normalized_event import NormalizedEvent
 from models.detection_finding import DetectionFinding
@@ -114,11 +115,17 @@ def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
         .order_by(AnalystNote.created_at)
         .all()
     )
+    iocs = (
+        db.query(Ioc)
+        .filter(Ioc.case_id == case_id)
+        .order_by(Ioc.ioc_type, Ioc.normalized_value)
+        .all()
+    )
 
     md = _build_report(
         case, evidence, timeline, norm_events,
         det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-        playbooks, notes,
+        playbooks, notes, iocs,
     )
 
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -167,7 +174,7 @@ def _load_json(value, fallback=None):
 def _build_report(
     case, evidence, timeline, norm_events,
     det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-    playbooks=None, notes=None,
+    playbooks=None, notes=None, iocs=None,
 ) -> str:
     lines: List[str] = []
 
@@ -411,9 +418,47 @@ def _build_report(
     else:
         add('No MITRE ATT&CK mappings generated. Run ATT&CK mapping on the case first.')
 
-    # ── 12. Analyst Playbook Progress ──────────────────────────────────────────
+    # ── 12. Indicators of Compromise ───────────────────────────────────────────
     add('')
-    add('## 12. Analyst Playbook Progress')
+    add('## 12. Indicators of Compromise')
+    add('')
+    reportable_iocs = [i for i in (iocs or []) if "benign" not in (json.loads(i.tags_json) if i.tags_json else [])]
+    if reportable_iocs:
+        _IOC_GROUP_LABELS = [
+            ("IP Addresses",      {"ipv4", "ipv6"}),
+            ("Domains",           {"domain"}),
+            ("URLs",              {"url"}),
+            ("File Hashes",       {"md5", "sha1", "sha256"}),
+            ("Hosts / Users",     {"hostname", "username", "email"}),
+            ("Processes & Paths", {"process_name", "file_path", "registry_path"}),
+            ("Other",             {"port", "user_agent", "mutex"}),
+        ]
+        shown_any = False
+        for group_label, group_types in _IOC_GROUP_LABELS:
+            group_items = [i for i in reportable_iocs if i.ioc_type in group_types]
+            if not group_items:
+                continue
+            add(f'### {group_label}')
+            add('')
+            add('| Type | Value | Confidence | Tags | Source |')
+            add('|------|-------|------------|------|--------|')
+            for i in group_items[:30]:
+                tags = json.loads(i.tags_json) if i.tags_json else []
+                tag_str = ", ".join(tags) if tags else "—"
+                src = i.source_type.replace("_", " ").title() if i.source_type else "manual"
+                add(f'| `{i.ioc_type}` | `{i.value}` | {i.confidence} | {tag_str} | {src} |')
+            if len(group_items) > 30:
+                add(f'*…{len(group_items) - 30} more {group_label.lower()} not shown.*')
+            add('')
+            shown_any = True
+        if not shown_any:
+            add('No non-benign IOCs recorded.')
+    else:
+        add('No IOCs extracted. Run "Extract IOCs" on the case to populate this section.')
+
+    # ── 13. Analyst Playbook Progress ──────────────────────────────────────────
+    add('')
+    add('## 13. Analyst Playbook Progress')
     add('')
     if playbooks:
         for pb in playbooks:
@@ -433,9 +478,9 @@ def _build_report(
     else:
         add('No investigation playbooks were used for this case.')
 
-    # ── 13. Analyst Notes and Observations ─────────────────────────────────────
+    # ── 14. Analyst Notes and Observations ─────────────────────────────────────
     add('')
-    add('## 13. Analyst Notes and Observations')
+    add('## 14. Analyst Notes and Observations')
     add('')
     if notes:
         # Priority order for report inclusion
@@ -465,9 +510,9 @@ def _build_report(
     else:
         add('No analyst notes recorded for this case.')
 
-    # ── 14. Analyst Assessment ──────────────────────────────────────────────────
+    # ── 15. Analyst Assessment ──────────────────────────────────────────────────
     add('')
-    add('## 14. Analyst Assessment')
+    add('## 15. Analyst Assessment')
     add('')
     has_data = any([det_findings, yara_hits, net_results, corr_findings, mitre_mappings])
     if not has_data:
@@ -508,9 +553,9 @@ def _build_report(
             )
         add(''.join(assessment))
 
-    # ── 15. Recommended Actions ─────────────────────────────────────────────────
+    # ── 16. Recommended Actions ─────────────────────────────────────────────────
     add('')
-    add('## 15. Recommended Actions')
+    add('## 16. Recommended Actions')
     add('')
     rec_actions: List[str] = []
     seen_recs: set = set()
@@ -533,9 +578,9 @@ def _build_report(
         add('- Escalate to senior analyst or IR team if indicators of compromise are confirmed.')
         add('- Preserve evidence and document all investigative steps taken.')
 
-    # ── 16. Detection Opportunities ─────────────────────────────────────────────
+    # ── 17. Detection Opportunities ─────────────────────────────────────────────
     add('')
-    add('## 16. Detection Opportunities')
+    add('## 17. Detection Opportunities')
     add('')
     if mitre_mappings:
         add('Based on ATT&CK techniques identified in this case, the following monitoring improvements are recommended:')
@@ -551,9 +596,9 @@ def _build_report(
     else:
         add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
 
-    # ── 17. Final Status ────────────────────────────────────────────────────────
+    # ── 18. Final Status ────────────────────────────────────────────────────────
     add('')
-    add('## 17. Final Status')
+    add('## 18. Final Status')
     add('')
     status_desc = {
         'open': 'Investigation has been opened. Initial triage is pending.',
