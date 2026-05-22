@@ -19,6 +19,7 @@ import AIAssistantPanel from '../components/AIAssistantPanel'
 import SplunkPanel from '../components/SplunkPanel'
 import ElasticPanel from '../components/ElasticPanel'
 import PlaybookPanel from '../components/PlaybookPanel'
+import NotesPanel from '../components/NotesPanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -284,6 +285,11 @@ export default function CaseDetail() {
       <div className="case-section-label">Analyst Playbooks</div>
 
       <PlaybookPanel caseId={caseData.id} />
+
+      {/* Analyst Notes */}
+      <div className="case-section-label">Analyst Notes</div>
+
+      <NotesPanel caseId={caseData.id} />
 
       {/* Reporting & AI */}
       <div className="case-section-label">Reporting &amp; AI</div>

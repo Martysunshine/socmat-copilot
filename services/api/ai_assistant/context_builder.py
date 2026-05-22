@@ -6,6 +6,7 @@ This context is passed to AI providers as grounding material.
 import json
 from sqlalchemy.orm import Session
 
+from models.analyst_note import AnalystNote
 from models.case import Case
 from models.case_playbook import CasePlaybook
 from models.evidence import Evidence
@@ -79,6 +80,12 @@ def build_case_context(db: Session, case_id: int) -> dict:
         db.query(CasePlaybook)
         .filter(CasePlaybook.case_id == case_id)
         .order_by(CasePlaybook.created_at)
+        .all()
+    )
+    analyst_notes = (
+        db.query(AnalystNote)
+        .filter(AnalystNote.case_id == case_id)
+        .order_by(AnalystNote.created_at)
         .all()
     )
 
@@ -172,5 +179,16 @@ def build_case_context(db: Session, case_id: int) -> dict:
                 ],
             }
             for pb in playbooks
+        ],
+        "analyst_notes": [
+            {
+                "note_type": n.note_type,
+                "entity_type": n.entity_type,
+                "body": n.body,
+                "author": n.author_name or "analyst",
+                "created_at": str(n.created_at),
+                "_label": "analyst-written — treat as analyst opinion, not verified evidence",
+            }
+            for n in analyst_notes
         ],
     }

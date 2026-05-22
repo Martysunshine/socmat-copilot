@@ -1,7 +1,7 @@
 """
 Security Incident Report generator for SOC Copilot Workbench.
 
-Produces a structured 15-section Markdown report from all case data.
+Produces a structured 17-section Markdown report from all case data.
 Reports are saved to reports/generated/ at the repository root.
 All content is derived from stored case data — no AI or invention.
 """
@@ -14,6 +14,7 @@ from typing import List, Tuple
 
 from sqlalchemy.orm import Session
 
+from models.analyst_note import AnalystNote
 from models.case import Case
 from models.case_playbook import CasePlaybook
 from models.evidence import Evidence
@@ -107,11 +108,17 @@ def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
         .order_by(CasePlaybook.created_at)
         .all()
     )
+    notes = (
+        db.query(AnalystNote)
+        .filter(AnalystNote.case_id == case_id)
+        .order_by(AnalystNote.created_at)
+        .all()
+    )
 
     md = _build_report(
         case, evidence, timeline, norm_events,
         det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-        playbooks,
+        playbooks, notes,
     )
 
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -160,7 +167,7 @@ def _load_json(value, fallback=None):
 def _build_report(
     case, evidence, timeline, norm_events,
     det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-    playbooks=None,
+    playbooks=None, notes=None,
 ) -> str:
     lines: List[str] = []
 
@@ -426,9 +433,41 @@ def _build_report(
     else:
         add('No investigation playbooks were used for this case.')
 
-    # ── 13. Analyst Assessment ──────────────────────────────────────────────────
+    # ── 13. Analyst Notes and Observations ─────────────────────────────────────
     add('')
-    add('## 13. Analyst Assessment')
+    add('## 13. Analyst Notes and Observations')
+    add('')
+    if notes:
+        # Priority order for report inclusion
+        _PRIORITY = ["escalation_note", "decision", "false_positive_reason", "report_note",
+                     "hypothesis", "observation", "general"]
+        _LABEL = {
+            "escalation_note": "Escalation",
+            "decision": "Decision",
+            "false_positive_reason": "False Positive",
+            "report_note": "Report Note",
+            "hypothesis": "Hypothesis",
+            "observation": "Observation",
+            "general": "General",
+        }
+        sorted_notes = sorted(notes, key=lambda n: (_PRIORITY.index(n.note_type) if n.note_type in _PRIORITY else 99, n.created_at))
+        for n in sorted_notes[:20]:
+            label = _LABEL.get(n.note_type, n.note_type.replace("_", " ").title())
+            author = n.author_name or "Analyst"
+            entity_ref = f" ({n.entity_type.replace('_', ' ')} #{n.entity_id})" if n.entity_id else ""
+            add(f'**[{label}]{entity_ref}** — *{author}* ({_fmt_dt(n.created_at)})')
+            add('')
+            add(f'> {n.body}')
+            add('')
+        if len(notes) > 20:
+            add(f'*{len(notes) - 20} additional note(s) not shown. Review all notes in the case detail view.*')
+            add('')
+    else:
+        add('No analyst notes recorded for this case.')
+
+    # ── 14. Analyst Assessment ──────────────────────────────────────────────────
+    add('')
+    add('## 14. Analyst Assessment')
     add('')
     has_data = any([det_findings, yara_hits, net_results, corr_findings, mitre_mappings])
     if not has_data:
@@ -469,9 +508,9 @@ def _build_report(
             )
         add(''.join(assessment))
 
-    # ── 14. Recommended Actions ─────────────────────────────────────────────────
+    # ── 15. Recommended Actions ─────────────────────────────────────────────────
     add('')
-    add('## 14. Recommended Actions')
+    add('## 15. Recommended Actions')
     add('')
     rec_actions: List[str] = []
     seen_recs: set = set()
@@ -494,9 +533,9 @@ def _build_report(
         add('- Escalate to senior analyst or IR team if indicators of compromise are confirmed.')
         add('- Preserve evidence and document all investigative steps taken.')
 
-    # ── 15. Detection Opportunities ─────────────────────────────────────────────
+    # ── 16. Detection Opportunities ─────────────────────────────────────────────
     add('')
-    add('## 15. Detection Opportunities')
+    add('## 16. Detection Opportunities')
     add('')
     if mitre_mappings:
         add('Based on ATT&CK techniques identified in this case, the following monitoring improvements are recommended:')
@@ -512,9 +551,9 @@ def _build_report(
     else:
         add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
 
-    # ── 16. Final Status ────────────────────────────────────────────────────────
+    # ── 17. Final Status ────────────────────────────────────────────────────────
     add('')
-    add('## 16. Final Status')
+    add('## 17. Final Status')
     add('')
     status_desc = {
         'open': 'Investigation has been opened. Initial triage is pending.',

@@ -32,6 +32,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **PCAP Analysis** | Static PCAP/PCAPNG analysis — top talkers, protocol distribution, DNS, HTTP, TLS/SNI, beaconing and DGA detection |
 | **Rule Authoring Assistant** | Draft Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL from a detection description; false positive notes, log source requirements, and validation warnings |
 | **Analyst Playbooks** | 10 built-in investigation playbooks for common alert types; step-by-step checklists; analyst notes per step; auto-suggestion from case findings; playbook progress in reports |
+| **Analyst Notes** | Attach notes (observations, hypotheses, decisions, escalations, false-positive reasoning) to any case entity; filter by type; notes included in incident reports; AI assistant treats them as analyst opinion |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -328,6 +329,8 @@ soc-copilot-workbench/
 | `/playbooks/templates/{id}` | GET | Get template detail with steps |
 | `/cases/{id}/playbooks` | GET / POST | List case playbooks + suggestions / attach a playbook |
 | `/cases/{id}/playbooks/{playbook_id}/steps/{step_id}` | PATCH | Update step status / analyst notes |
+| `/cases/{id}/notes` | GET / POST | List (filterable) / create analyst notes |
+| `/cases/{id}/notes/{note_id}` | PATCH / DELETE | Update / delete an analyst note |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -374,7 +377,8 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 24: PCAP / network traffic analysis
 - [x] Phase 25: Detection rule authoring assistant
 - [x] Phase 26: Analyst playbooks and guided investigation
-- [ ] Phase 27: Analyst notes and evidence annotations
+- [x] Phase 27: Analyst notes and evidence annotations
+- [ ] Phase 28: IOC extraction and IOC basket
 - [ ] Phase 28: IOC extraction and IOC basket
 - [ ] Phase 29: Entity graph and investigation map
 - [ ] Phase 30: Attack timeline replay mode
