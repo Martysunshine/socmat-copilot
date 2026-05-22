@@ -10,6 +10,7 @@ import YaraRulesPage from './pages/YaraRulesPage'
 import Reports from './pages/Reports'
 import MCPStatus from './pages/MCPStatus'
 import SplunkPage from './pages/SplunkPage'
+import SplunkLivePage from './pages/SplunkLivePage'
 import ElasticPage from './pages/ElasticPage'
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="mcp" element={<MCPStatus />} />
           <Route path="splunk" element={<SplunkPage />} />
+          <Route path="splunk-live" element={<SplunkLivePage />} />
           <Route path="elastic" element={<ElasticPage />} />
         </Route>
       </Routes>

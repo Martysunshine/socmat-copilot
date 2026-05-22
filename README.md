@@ -27,6 +27,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Sigma Detection** | Load and run Sigma YAML rules against normalized events; human-readable explanations |
 | **YARA Static Triage** | Scan uploaded artifacts against YARA rules without executing files |
 | **Splunk Export** | Parse Splunk CSV/JSON exports; SPL query assistant for investigation pivoting |
+| **Live Splunk Connector** | Query a live Splunk instance via REST API; run predefined SPL templates; env-var credentials only |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -357,8 +358,9 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 19: Security hardening and safe defaults
 - [x] Phase 20: GitHub-ready README and open source polish
 - [x] Phase 21: PDF report export
-- [ ] Phase 22: PCAP / network traffic analysis
-- [ ] Phase 23: Real-time Splunk/Elastic API integration
+- [x] Phase 22: Live Splunk connector
+- [ ] Phase 23: Live Elastic connector
+- [ ] Phase 24: PCAP / network traffic analysis
 
 ---
 

@@ -29,14 +29,23 @@ This document describes the full planned build progression. Each phase produces 
 | 19 | Security Hardening and Safe Defaults | 50 MB upload cap, path traversal guard, Pydantic field constraints, security docs |
 | 20 | GitHub-Ready README and Open Source Polish | Rewritten README, CONTRIBUTING.md, SECURITY.md, roadmap |
 | 21 | PDF Report Export | `GET /cases/{id}/report/pdf` endpoint; fpdf2-based styled PDF; Download PDF button in UI |
+| 22 | Live Splunk Connector | `SPLUNK_URL`/`SPLUNK_TOKEN` env-var credentials; connection test; predefined SPL template runner; custom SPL; query history with sample storage |
 
 ---
 
 ## Planned Phases
 
-### Phase 22 — PCAP / Network Traffic Analysis
+### Phase 23 — Live Elastic Connector
 
-### Phase 22 — PCAP / Network Traffic Analysis
+Query a live Elasticsearch/Kibana instance directly from the workbench.
+
+- Elastic REST API with `ELASTIC_URL`/`ELASTIC_API_KEY` env vars
+- Connection test endpoint
+- Run predefined KQL/ES|QL hunt templates against live data
+- Store only query metadata and selected results
+- Credential input via environment variables only — never stored in SQLite
+
+### Phase 24 — PCAP / Network Traffic Analysis
 
 Passive analysis of PCAP files without executing payloads.
 
@@ -44,16 +53,6 @@ Passive analysis of PCAP files without executing payloads.
 - Extract connection metadata, DNS queries, HTTP requests, TLS handshakes
 - Flag suspicious patterns: beaconing, DGA domains, cleartext credentials
 - Integrate with existing timeline and correlation engine
-
-### Phase 23 — Real-Time Splunk / Elastic API Integration
-
-Query live SIEM systems directly from the workbench.
-
-- Splunk REST API (`/services/search/jobs`)
-- Elasticsearch REST API
-- Credential input via environment variables only (never stored in SQLite)
-- Rate-limited, read-only queries
-- Map results into existing normalized event schema
 
 ---
 
