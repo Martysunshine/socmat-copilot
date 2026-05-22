@@ -1,5 +1,6 @@
-# Build bible - never commit
+# Build bible and private notes - never commit
 multiprompt.md
+BILLING-SAFETY.md
 
 # Environment
 .env
