@@ -32,6 +32,7 @@ This document describes the full planned build progression. Each phase produces 
 | 22 | Live Splunk Connector | `SPLUNK_URL`/`SPLUNK_TOKEN` env-var credentials; connection test; predefined SPL template runner; custom SPL; query history with sample storage |
 | 23 | Live Elastic Connector | `ELASTIC_URL`/`ELASTIC_API_KEY` env-var credentials; connection test via `/_cluster/health`; predefined ES\|QL hunt template runner; custom ES\|QL; query history with sample storage |
 | 24 | PCAP Network Traffic Analysis | Static-only PCAP/PCAPNG analysis via `dpkt`; top talkers, protocol distribution, DNS, HTTP, TLS/SNI; beaconing, DGA, port-scan, large-transfer detection; findings added to timeline |
+| 25 | Detection Rule Authoring Assistant | Template-based Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL drafts from a description; auto event-type detection; false positive notes, log source requirements, and validation warnings |
 
 ---
 

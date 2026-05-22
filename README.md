@@ -30,6 +30,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Live Splunk Connector** | Query a live Splunk instance via REST API; run predefined SPL templates; env-var credentials only |
 | **Live Elastic Connector** | Query a live Elasticsearch instance via ES\|QL; run predefined hunt templates; env-var credentials only |
 | **PCAP Analysis** | Static PCAP/PCAPNG analysis — top talkers, protocol distribution, DNS, HTTP, TLS/SNI, beaconing and DGA detection |
+| **Rule Authoring Assistant** | Draft Sigma YAML, Splunk SPL, and Elastic KQL/ES|QL from a detection description; false positive notes, log source requirements, and validation warnings |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -320,6 +321,8 @@ soc-copilot-workbench/
 | `/cases/{id}/ai/recommend` | POST | AI recommended next steps |
 | `/mcp/tools` | GET | List MCP tools |
 | `/dashboard/summary` | GET | Dashboard aggregate metrics |
+| `/rules/author` | POST | Generate Sigma/SPL/KQL/ES\|QL rule drafts |
+| `/rules/author/event-types` | GET | List supported event types |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -364,6 +367,7 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 22: Live Splunk connector
 - [x] Phase 23: Live Elastic connector
 - [x] Phase 24: PCAP / network traffic analysis
+- [x] Phase 25: Detection rule authoring assistant
 
 ---
 
