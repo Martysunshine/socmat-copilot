@@ -31,19 +31,13 @@ This document describes the full planned build progression. Each phase produces 
 | 21 | PDF Report Export | `GET /cases/{id}/report/pdf` endpoint; fpdf2-based styled PDF; Download PDF button in UI |
 | 22 | Live Splunk Connector | `SPLUNK_URL`/`SPLUNK_TOKEN` env-var credentials; connection test; predefined SPL template runner; custom SPL; query history with sample storage |
 | 23 | Live Elastic Connector | `ELASTIC_URL`/`ELASTIC_API_KEY` env-var credentials; connection test via `/_cluster/health`; predefined ES\|QL hunt template runner; custom ES\|QL; query history with sample storage |
+| 24 | PCAP Network Traffic Analysis | Static-only PCAP/PCAPNG analysis via `dpkt`; top talkers, protocol distribution, DNS, HTTP, TLS/SNI; beaconing, DGA, port-scan, large-transfer detection; findings added to timeline |
 
 ---
 
 ## Planned Phases
 
-### Phase 24 — PCAP / Network Traffic Analysis
-
-Passive analysis of PCAP files without executing payloads.
-
-- Library: `scapy` or `dpkt`
-- Extract connection metadata, DNS queries, HTTP requests, TLS handshakes
-- Flag suspicious patterns: beaconing, DGA domains, cleartext credentials
-- Integrate with existing timeline and correlation engine
+No further phases are currently scheduled. See [CONTRIBUTING.md](../CONTRIBUTING.md) to propose new phases.
 
 ---
 

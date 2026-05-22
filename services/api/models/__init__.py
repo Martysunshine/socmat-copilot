@@ -13,5 +13,6 @@ from models.splunk_event import SplunkEvent  # noqa: F401
 from models.elastic_event import ElasticEvent  # noqa: F401
 from models.splunk_live_query import SplunkLiveQuery  # noqa: F401
 from models.elastic_live_query import ElasticLiveQuery  # noqa: F401
+from models.pcap_analysis_result import PcapAnalysisResult  # noqa: F401
 
-__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult", "CorrelatedFinding", "CaseMitreMapping", "Report", "SplunkEvent", "ElasticEvent", "SplunkLiveQuery", "ElasticLiveQuery"]
+__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult", "CorrelatedFinding", "CaseMitreMapping", "Report", "SplunkEvent", "ElasticEvent", "SplunkLiveQuery", "ElasticLiveQuery", "PcapAnalysisResult"]

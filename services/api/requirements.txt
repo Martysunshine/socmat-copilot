@@ -7,3 +7,4 @@ yara-python>=4.2
 anthropic>=0.40.0
 fpdf2>=2.7.0
 requests>=2.31.0
+dpkt>=1.9.8

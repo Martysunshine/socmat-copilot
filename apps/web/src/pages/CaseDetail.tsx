@@ -11,6 +11,7 @@ import SuricataAnalysisPanel from '../components/SuricataAnalysisPanel'
 import SigmaRunPanel from '../components/SigmaRunPanel'
 import YaraPanel from '../components/YaraPanel'
 import ZeekPanel from '../components/ZeekPanel'
+import PcapPanel from '../components/PcapPanel'
 import CorrelationPanel from '../components/CorrelationPanel'
 import MitrePanel from '../components/MitrePanel'
 import ReportPanel from '../components/ReportPanel'
@@ -244,6 +245,12 @@ export default function CaseDetail() {
       />
 
       <ZeekPanel
+        caseId={caseData.id}
+        evidence={evidence}
+        onAnalysisComplete={handleAnalysisComplete}
+      />
+
+      <PcapPanel
         caseId={caseData.id}
         evidence={evidence}
         onAnalysisComplete={handleAnalysisComplete}
