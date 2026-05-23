@@ -3,7 +3,8 @@
 Seed script — Operation: Midnight Blue demo.
 
 Creates a demo case, uploads all demo-incident evidence files,
-and runs every analysis module automatically.
+runs every analysis module automatically, and seeds all Phase 26–33
+advanced analyst-workflow features with realistic demo data.
 
 Requirements:
     pip install requests
@@ -188,12 +189,197 @@ def run(api: str, verbose: bool) -> None:
         count = len(res) if isinstance(res, list) else res.get('mappings_count', '?')
         print(f"  Done — {count} technique mappings")
 
-    # ── generate report ──────────────────────────────────────────────────────
-    print("\nGenerating incident report …")
+    # ── IOC extraction ───────────────────────────────────────────────────────
+    print("\nExtracting IOCs …")
+    r = session.post(f"{base}/cases/{case_id}/iocs/extract")
+    res = _ok(r, "ioc extract")
+    if res is not None:
+        count = res.get("extracted_count", "?")
+        print(f"  Done — {count} IOCs extracted")
+
+    # ── Phase 26: Analyst Playbooks ──────────────────────────────────────────
+    print("\nSeeding analyst playbooks …")
+    r = session.get(f"{base}/playbooks/templates")
+    templates = _ok(r, "get playbook templates")
+    pb_id = None
+    if templates:
+        # Attach "Brute Force" playbook (most relevant for this demo case)
+        brute_force = next(
+            (t for t in templates if "brute" in t["name"].lower()),
+            templates[0],
+        )
+        r = session.post(
+            f"{base}/cases/{case_id}/playbooks",
+            json={"template_id": brute_force["id"]},
+        )
+        pb = _ok(r, "attach brute-force playbook")
+        if pb:
+            pb_id = pb["id"]
+            print(f"  Attached: {brute_force['name']}")
+            # Mark first 3 steps done to show progress
+            steps = pb.get("steps", [])
+            for step in steps[:3]:
+                session.patch(
+                    f"{base}/cases/{case_id}/playbooks/{pb_id}/steps/{step['id']}",
+                    json={"status": "done", "analyst_notes": "Confirmed — see Windows Security log evidence."},
+                )
+            if steps:
+                print(f"  Marked {min(3, len(steps))} of {len(steps)} steps as done")
+
+        # Also attach PowerShell playbook
+        ps_tmpl = next(
+            (t for t in templates if "powershell" in t["name"].lower()),
+            None,
+        )
+        if ps_tmpl:
+            r = session.post(
+                f"{base}/cases/{case_id}/playbooks",
+                json={"template_id": ps_tmpl["id"]},
+            )
+            pb2 = _ok(r, "attach powershell playbook")
+            if pb2:
+                print(f"  Attached: {ps_tmpl['name']}")
+
+    # ── Phase 27: Analyst Notes ───────────────────────────────────────────────
+    print("\nSeeding analyst notes …")
+    demo_notes = [
+        {
+            "entity_type": "case",
+            "entity_id": case_id,
+            "note_type": "observation",
+            "content": (
+                "Initial triage of WORKSTATION-42. Multiple failed logins (EID 4625) "
+                "from 203.0.113.45 between 02:11–02:18 UTC. Successful logon (EID 4624) "
+                "at 02:18:43 UTC under jsmith account. Possible credential spray."
+            ),
+        },
+        {
+            "entity_type": "case",
+            "entity_id": case_id,
+            "note_type": "hypothesis",
+            "content": (
+                "Hypothesis: Attacker obtained jsmith credentials via credential spray, "
+                "then used encoded PowerShell to download and execute a second-stage payload. "
+                "C2 beacon observed to 192.168.1.200 (suspicious internal IP)."
+            ),
+        },
+        {
+            "entity_type": "case",
+            "entity_id": case_id,
+            "note_type": "recommendation",
+            "content": (
+                "Recommended actions: (1) Isolate WORKSTATION-42 immediately. "
+                "(2) Reset jsmith credentials. "
+                "(3) Inspect 192.168.1.200 for C2 infrastructure. "
+                "(4) Review all hosts that authenticated from 203.0.113.45."
+            ),
+        },
+        {
+            "entity_type": "case",
+            "entity_id": case_id,
+            "note_type": "assessment",
+            "content": (
+                "FINAL ASSESSMENT: Confirmed multi-stage compromise. "
+                "Attacker achieved initial access via credential spray, executed encoded PowerShell "
+                "(MITRE T1059.001), and established C2 communication (MITRE T1071). "
+                "Lateral movement attempted via MS17-010 (T1210). "
+                "Severity: CRITICAL. Escalate to IR team."
+            ),
+        },
+    ]
+    notes_created = 0
+    for note_data in demo_notes:
+        r = session.post(f"{base}/cases/{case_id}/notes", json=note_data)
+        if _ok(r, f"note ({note_data['note_type']})"):
+            notes_created += 1
+    print(f"  Created {notes_created} analyst notes")
+
+    # ── Phase 28: IOC tagging (already extracted above) ──────────────────────
+    print("\nTagging demo IOCs …")
+    r = session.get(f"{base}/cases/{case_id}/iocs")
+    iocs = _ok(r, "get iocs")
+    if iocs:
+        tagged = 0
+        for ioc in iocs[:5]:
+            ioc_id = ioc.get("id")
+            ioc_val = ioc.get("value", "")
+            # Tag external IP as suspicious, C2 IP as confirmed malicious
+            if "203.0.113" in ioc_val:
+                tag = "suspicious"
+            elif "192.168.1.200" in ioc_val:
+                tag = "confirmed_malicious"
+            elif ioc.get("ioc_type") in ("sha256", "md5"):
+                tag = "confirmed_malicious"
+            else:
+                continue
+            r = session.patch(
+                f"{base}/cases/{case_id}/iocs/{ioc_id}",
+                json={"analyst_tag": tag},
+            )
+            if r.ok:
+                tagged += 1
+        print(f"  Tagged {tagged} IOCs with analyst disposition")
+
+    # ── Phase 32: Finding Dispositions ───────────────────────────────────────
+    print("\nSeeding finding dispositions …")
+    demo_dispositions = [
+        {
+            "finding_type": "sigma",
+            "finding_id": "brute_force_failed_logons",
+            "finding_title": "Multiple Failed Logon Attempts",
+            "disposition": "true_positive",
+            "confidence": "high",
+            "reason": "14 failed logons in 7 minutes from 203.0.113.45 — confirmed brute force.",
+            "analyst_name": "jdoe",
+            "follow_up_action": "Block 203.0.113.45 at perimeter firewall.",
+        },
+        {
+            "finding_type": "sigma",
+            "finding_id": "suspicious_powershell_encoded",
+            "finding_title": "Suspicious Encoded PowerShell",
+            "disposition": "true_positive",
+            "confidence": "high",
+            "reason": "Decoded command downloads and executes payload from external URL.",
+            "analyst_name": "jdoe",
+            "follow_up_action": "Image WORKSTATION-42. Preserve memory dump.",
+        },
+        {
+            "finding_type": "suricata",
+            "finding_id": "ET-POLICY-C2-beacon",
+            "finding_title": "ET POLICY Possible C2 Beacon",
+            "disposition": "true_positive",
+            "confidence": "medium",
+            "reason": "Regular 60-second interval connections to 192.168.1.200:4444 from infected host.",
+            "analyst_name": "jdoe",
+            "follow_up_action": "Investigate 192.168.1.200 as potential C2 pivot host.",
+        },
+    ]
+    disps_created = 0
+    for disp_data in demo_dispositions:
+        r = session.post(f"{base}/cases/{case_id}/dispositions", json=disp_data)
+        if _ok(r, f"disposition ({disp_data['finding_title'][:30]})"):
+            disps_created += 1
+    print(f"  Created {disps_created} finding dispositions")
+
+    # ── generate final report (includes all advanced feature sections) ────────
+    print("\nGenerating final incident report …")
     r = session.post(f"{base}/cases/{case_id}/report/generate")
     res = _ok(r, "report generate")
     if res:
         print(f"  Done — report saved")
+
+    # ── report readiness check ────────────────────────────────────────────────
+    print("\nChecking report readiness …")
+    r = session.get(f"{base}/cases/{case_id}/report/readiness")
+    readiness = _ok(r, "report readiness")
+    if readiness:
+        score = readiness.get("total_score", 0)
+        grade = readiness.get("grade", "?")
+        missing = len(readiness.get("missing_checks", []))
+        print(f"  Score: {score:.0f}% ({grade.upper()}) — {missing} checks still missing")
+        if verbose and readiness.get("missing_checks"):
+            for mc in readiness["missing_checks"][:5]:
+                print(f"    · Missing: {mc['name']}")
 
     # ── summary ─────────────────────────────────────────────────────────────
     print(f"""
@@ -202,6 +388,26 @@ def run(api: str, verbose: bool) -> None:
 
  Case ID  : {case_id}
  Case URL : http://localhost:5173/cases/{case_id}
+
+ What was seeded:
+   ✓ Case: Operation — Midnight Blue (critical)
+   ✓ 7 evidence files (Windows, Suricata, Zeek, YARA)
+   ✓ Windows/Sysmon, Suricata, Zeek analysis
+   ✓ YARA static triage
+   ✓ Sigma detection run
+   ✓ Correlation engine
+   ✓ MITRE ATT&CK mapping
+   ✓ IOC extraction and tagging
+   ✓ Analyst playbooks (brute force + PowerShell)
+   ✓ Analyst notes (observation, hypothesis, recommendation, assessment)
+   ✓ Finding dispositions (3 confirmed true positives)
+   ✓ Incident report generated
+
+ To see advanced features:
+   - Timeline Replay: click "Replay Mode" on the Timeline tab
+   - Entity Graph: scroll to "Investigation Map"
+   - Detection Coverage: scroll to "Detection Coverage"
+   - Report Readiness: scroll to "Report Readiness"
 ------------------------------------------------------
 """)
 

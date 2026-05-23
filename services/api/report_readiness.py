@@ -6,7 +6,7 @@ readiness score (0-100) and grade (poor / fair / good / excellent).
 No data is fabricated — all checks query the case database only.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from models.analyst_note import AnalystNote
@@ -331,5 +331,5 @@ def compute_readiness(db: Session, case_id: int) -> dict:
         "warnings":         warnings,
         "recommendations":  recommendations,
         "section_scores":   section_scores,
-        "checked_at":       datetime.utcnow().isoformat(),
+        "checked_at":       datetime.now(timezone.utc).isoformat(),
     }

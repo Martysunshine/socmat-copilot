@@ -1,7 +1,7 @@
 # Build bible and private notes - never commit
 multiprompt.md
 BILLING-SAFETY.md
-MULTIPROMPT_LOCAL_BULLETPROOF.md
+LOCAL_BULLETPROOF_FULL_TESTING.md
 
 # Environment
 .env

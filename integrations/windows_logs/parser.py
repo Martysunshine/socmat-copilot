@@ -132,7 +132,7 @@ SUSPICIOUS_PROCESSES = {
     "at.exe", "schtasks.exe", "bitsadmin.exe", "curl.exe", "wget.exe",
 }
 
-ENCODED_CMD_RE = re.compile(r"(?i)(?:-e|-en|-enc|-enco|-encod)\s+[A-Za-z0-9+/=]{20,}")
+ENCODED_CMD_RE = re.compile(r"(?i)(?:-e|-en|-enc|-enco|-encod(?:ed(?:command)?)?)\s+[A-Za-z0-9+/=]{20,}")
 BASE64_RE = re.compile(r"[A-Za-z0-9+/]{40,}={0,2}")
 
 
@@ -273,21 +273,25 @@ def _detect(rec: Dict[str, Any], context: Dict[str, Any]) -> List[Tuple[str, str
                 "medium",
             ))
 
-        # Suspicious LOLBIN execution
-        for lolbin in ("mshta.exe", "regsvr32.exe", "rundll32.exe", "certutil.exe", "wscript.exe", "cscript.exe"):
-            if lolbin in proc_base:
-                findings.append((
-                    f"Suspicious LOLBIN '{proc_base}' executed by '{user}': {cmd[:100] or 'no cmdline'}",
-                    "medium",
-                ))
-                break
-
-        # certutil with decode / urlcache — common dropper technique
+        # certutil with decode / urlcache — specific check takes priority over generic LOLBIN
+        _certutil_specific_fired = False
         if "certutil" in proc_base and any(x in cmd for x in ("-decode", "-urlcache", "-split")):
             findings.append((
                 f"certutil used for potential file download/decode: {cmd[:120]}",
                 "high",
             ))
+            _certutil_specific_fired = True
+
+        # Suspicious LOLBIN execution (skip certutil if the specific rule already fired)
+        for lolbin in ("mshta.exe", "regsvr32.exe", "rundll32.exe", "certutil.exe", "wscript.exe", "cscript.exe"):
+            if lolbin in proc_base:
+                if lolbin == "certutil.exe" and _certutil_specific_fired:
+                    break
+                findings.append((
+                    f"Suspicious LOLBIN '{proc_base}' executed by '{user}': {cmd[:100] or 'no cmdline'}",
+                    "medium",
+                ))
+                break
 
         # net/net1 commands for account/group reconnaissance
         if proc_base in ("net.exe", "net1.exe"):

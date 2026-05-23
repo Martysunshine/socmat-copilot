@@ -5,6 +5,8 @@
 > **Defensive tool only.** Built for blue-team SOC analysts.
 > No offensive functionality, exploit code, or malware execution capability.
 
+Parse logs. Run detections. Map techniques. Write reports. All in one place. All on your machine.
+
 ---
 
 ## Why This Project Exists
@@ -12,6 +14,22 @@
 Modern SOC analysts juggle a dozen tools simultaneously — log parsers, detection engines, threat intel lookups, MITRE mapping, and report writing — all in separate windows with no unified view. SOC Copilot Workbench brings these workflows into one local, privacy-first investigation workbench.
 
 Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS dependency.
+
+---
+
+## Who This Is For
+
+- **Junior SOC analysts** learning structured investigation workflows with guided playbooks and step-by-step checklists
+- **Senior analysts and detection engineers** who want a fast, scriptable local workbench for log parsing, Sigma/YARA detection, and report generation
+- **Students and job seekers** building a defensive security portfolio with a realistic, production-grade codebase
+- **Security teams** who need a self-hosted, air-gappable triage tool with no telemetry
+
+## What This Is Not
+
+- **Not a SIEM replacement.** It does not ingest live log streams or replace Splunk, Elastic, or Chronicle.
+- **Not a threat intel platform.** No external reputation lookups, no IOC enrichment APIs, no feed subscriptions.
+- **Not a production SOAR.** No ticketing integrations, no playbook automation, no multi-tenant access control.
+- **Not an offensive tool.** No exploit code, no C2 infrastructure, no payload generation.
 
 ---
 
@@ -133,29 +151,31 @@ cp services/api/.env.example services/api/.env
 
 ## Demo Scenario — Operation: Midnight Blue
 
-A pre-built fictional SOC incident scenario covering all 15 analysis modules.
+A pre-built fictional SOC incident scenario covering all analysis modules and advanced analyst-workflow features.
 
 **What it includes:**
-- Lateral movement via PsExec and Mimikatz credential dumping (Windows/Sysmon logs)
-- Suricata IDS alerts: EternalBlue exploit, C2 callbacks, Cobalt Strike beacon
-- Zeek network logs: DNS tunneling, beaconing to a C2 server, failed port scans
-- Sigma rule hits: PowerShell Empire, LSASS access, scheduled task creation
-- YARA triage: Mimikatz and Empire payload signatures
-- Full MITRE ATT&CK mapping across Initial Access → Lateral Movement → Exfiltration
-- Auto-generated Markdown incident report
+- Credential spray against jsmith (Windows Security log — EID 4625/4624)
+- Encoded PowerShell execution (Sysmon EID 4688)
+- C2 beacon to 192.168.1.200 (Suricata + Zeek beaconing detection)
+- DNS tunneling suspicion (Zeek DNS log analysis)
+- Sigma rule hits: brute force, encoded PowerShell, new service installation
+- YARA triage: suspicious payload static analysis
+- Full MITRE ATT&CK mapping: T1110, T1059.001, T1071, T1210
+- Auto-generated Markdown and PDF incident report
+- Pre-seeded analyst playbooks, notes, IOC tags, and finding dispositions
 
 **Run the demo:**
 
 ```bash
-# 1. Start the backend
+# 1. Start the backend (or use Docker Compose)
 cd services/api && uvicorn main:app --reload
 
-# 2. Seed the demo case (new terminal)
+# 2. Seed the demo case (new terminal, from repo root)
 pip install requests
 python scripts/seed_demo.py
 ```
 
-The script prints the URL to the populated case. See [docs/demo-walkthrough.md](docs/demo-walkthrough.md) for a manual step-by-step guide.
+The script creates and fully populates a demo case and prints the URL. See [docs/demo-walkthrough.md](docs/demo-walkthrough.md) and [docs/fresh-clone-runbook.md](docs/fresh-clone-runbook.md) for step-by-step guides.
 
 ---
 
@@ -358,12 +378,29 @@ Interactive docs: http://localhost:8000/docs
 
 ## Testing
 
+**Unit tests:**
 ```bash
 pip install pytest
 pytest tests/ -v
 ```
 
-Tests cover Windows/Sysmon and Suricata parser logic. Safe sample evidence files are in `sample-data/`.
+**Backend smoke test** (requires running backend):
+```bash
+pip install requests
+python scripts/smoke_backend.py
+```
+
+**Advanced feature API test** (requires running backend with demo data):
+```bash
+python scripts/smoke_advanced_features.py
+```
+
+**Full certification** (end-to-end validation):
+```bash
+python scripts/certify_local_release.py
+```
+
+Unit tests cover Windows/Sysmon and Suricata parser logic. Safe sample evidence files are in `sample-data/`. See [docs/module-validation.md](docs/module-validation.md) for per-module validation status.
 
 ---
 

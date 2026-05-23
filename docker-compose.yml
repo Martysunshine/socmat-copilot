@@ -7,10 +7,13 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - AI_PROVIDER=mock
     volumes:
       - ./services/api:/app
       - ./uploads:/app/uploads
       - ./reports/generated:/app/reports/generated
+    networks:
+      - socmat
 
   frontend:
     build:
@@ -19,6 +22,14 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:8000
+      # Tells the Vite dev-server proxy where to forward /api/* requests.
+      # Uses the Docker Compose service name so container-to-container routing works.
+      - VITE_BACKEND_URL=http://backend:8000
     depends_on:
       - backend
+    networks:
+      - socmat
+
+networks:
+  socmat:
+    driver: bridge

@@ -1,4 +1,4 @@
-const API = 'http://localhost:8000'
+const API = '/api'
 
 export interface ReadinessCheck {
   id: string

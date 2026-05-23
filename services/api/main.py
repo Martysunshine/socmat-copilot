@@ -1,4 +1,7 @@
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+load_dotenv()  # load .env when running locally (no-op in Docker where env vars are injected)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import init_db

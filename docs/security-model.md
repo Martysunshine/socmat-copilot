@@ -102,9 +102,25 @@ For any deployment beyond a single analyst's laptop:
 
 ---
 
+## Advanced Feature Security Controls (Phases 26–33)
+
+| Feature | Security control |
+|---------|----------------|
+| Analyst Notes | Stored as plain text; frontend renders in React (no `dangerouslySetInnerHTML`) — no stored XSS risk |
+| IOC Extraction | Purely local extraction from DB data — no external lookups, no DNS resolution, no threat intel API calls |
+| IOC Basket | Manual analyst tags only — no automatic reputation lookup or external enrichment |
+| Entity Graph | Reads only from the case's own DB rows — cannot leak data across cases |
+| Timeline Replay | Explanations are generated server-side from DB events — AI cannot fabricate replay steps |
+| Finding Dispositions | Analyst-controlled only — the AI assistant reads dispositions as advisory context but cannot set them |
+| Report Readiness | Computed from DB queries — no fabrication; missing checks shown honestly as missing |
+| AI context injection | `context_builder.py` labels all AI keys; analyst notes marked "analyst opinion — not verified"; dispositions marked "AI advisory only — analyst decision is final" |
+
+---
+
 ## Safety Notes
 
 - Do not upload live malware outside an isolated lab environment.
 - Do not connect production SIEM credentials in development mode.
 - This project is for **defensive** SOC workflows only.
 - Static analysis means no dynamic execution — the tool cannot detonate payloads.
+- Analyst notes, IOC tags, and dispositions are analyst-authored — the AI cannot modify them.
