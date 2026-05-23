@@ -38,6 +38,7 @@ This document describes the full planned build progression. Each phase produces 
 | 28 | IOC Extraction and IOC Basket | Automatic IOC extraction from all case data sources; 16 IOC types (IPs, domains, URLs, hashes, users, hosts, processes, paths, ports, user agents); deduplication; confidence levels; analyst tagging (suspicious/confirmed malicious/benign/needs review/internal/external); CSV/JSON export; copy; manual add; IOC section in reports; IOC context in AI assistant |
 | 29 | Entity Graph and Investigation Map | Interactive React Flow entity graph built from all case data; 14+ node types (hosts, users, IPs, domains, processes, hashes, Sigma/YARA/Suricata detections, MITRE techniques, correlated findings, IOCs); 14 edge types; per-type filter toggles; node/edge detail panel; export graph JSON; entity map summary section in reports; graph summary in AI context |
 | 30 | Attack Timeline Replay Mode | Interactive timeline replay modal; step through all timeline events with play/pause/next/prev/restart/speed controls; per-event explanations ("what this means"), recommended focus, affected entities, related evidence, related findings, and MITRE mappings; event list sidebar with severity highlight; keyboard shortcuts; copy event summary; severity and source filters; Attack Narrative report section; timeline_narrative AI context |
+| 31 | Detection Coverage and Telemetry Gap Analysis | Global `/coverage` rule browser showing all Sigma rules with MITRE tags, logsource, and detection fields; per-case coverage panel showing triggered/not-triggered/blocked rule counts; MITRE coverage percentage; available vs missing log sources; 7-gap telemetry gap catalogue (PowerShell script block logs, Sysmon EID 1/3, DNS, HTTP/proxy, EDR, auth logs) with why-it-matters and recommendations; new report section 20 "Detection Coverage and Telemetry Gaps"; coverage_gaps AI context key |
 
 ---
 
@@ -45,7 +46,6 @@ This document describes the full planned build progression. Each phase produces 
 
 | Phase | Name |
 |-------|------|
-| 31 | Detection Coverage and Telemetry Gap Analysis |
 | 32 | Finding Disposition and False Positive Review |
 | 33 | Report Readiness Score |
 

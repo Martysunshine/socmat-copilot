@@ -211,6 +211,7 @@ def build_case_context(db: Session, case_id: int) -> dict:
         ],
         "entity_graph_summary": _build_entity_summary(case, db, case_id),
         "timeline_narrative": _build_timeline_narrative(timeline),
+        "coverage_gaps": _build_coverage_gaps(db, case_id, det_findings),
     }
 
 
@@ -247,6 +248,68 @@ def _build_timeline_narrative(timeline: list) -> dict:
         "last_event_at": str(timeline[-1].timestamp),
         "events": events,
         "_label": "Timeline data only — treat as analyst-observed events, not AI-generated analysis.",
+    }
+
+
+def _build_coverage_gaps(db: Session, case_id: int, det_findings: list) -> dict:
+    """Summarise telemetry gaps for AI context so it can recommend missing log sources."""
+    from models.normalized_event import NormalizedEvent
+    from models.network_analysis_result import NetworkAnalysisResult
+    from models.pcap_analysis_result import PcapAnalysisResult
+
+    event_ids: set = {
+        str(eid)
+        for (eid,) in db.query(NormalizedEvent.event_id).filter(
+            NormalizedEvent.case_id == case_id
+        ).all()
+        if eid
+    }
+
+    net_types = {
+        (lt or "").lower()
+        for (lt,) in db.query(NetworkAnalysisResult.log_type).filter(
+            NetworkAnalysisResult.case_id == case_id
+        ).all()
+    }
+
+    has_dns = any("dns" in t for t in net_types) or bool(
+        db.query(PcapAnalysisResult.id).filter(
+            PcapAnalysisResult.case_id == case_id,
+            PcapAnalysisResult.dns_queries.isnot(None),
+        ).first()
+    )
+    has_http = any("http" in t for t in net_types) or bool(
+        db.query(PcapAnalysisResult.id).filter(
+            PcapAnalysisResult.case_id == case_id,
+            PcapAnalysisResult.http_requests.isnot(None),
+        ).first()
+    )
+
+    gaps = []
+    if not {"4103", "4104"}.intersection(event_ids):
+        gaps.append("PowerShell Script Block Logs (EID 4103/4104) not collected — T1059.001 detection is limited")
+    if not {"1", "4688"}.intersection(event_ids):
+        gaps.append("Sysmon/Windows process creation logs (EID 1/4688) not collected — most Sigma rules cannot run")
+    if "3" not in event_ids:
+        gaps.append("Sysmon network connection logs (EID 3) not collected — C2 process correlation not possible")
+    if not has_dns:
+        gaps.append("DNS query logs not available — T1071.004 (DNS C2) detection is limited")
+    if not has_http:
+        gaps.append("HTTP/proxy logs not available — web-based C2 and exfiltration detection is limited")
+    if not {"4624", "4625", "4648", "4768", "4769", "4776"}.intersection(event_ids):
+        gaps.append("Authentication event logs not collected — brute force and account compromise detection is limited")
+
+    triggered_count = len({df.rule_id for df in det_findings})
+
+    return {
+        "telemetry_gaps": gaps,
+        "gap_count": len(gaps),
+        "triggered_sigma_rules": triggered_count,
+        "_label": (
+            "Coverage gap data is derived from case evidence only. "
+            "Gaps indicate missing telemetry — they do not mean no attack occurred. "
+            "Do not claim data exists if not present. Recommend collecting missing logs."
+        ),
     }
 
 

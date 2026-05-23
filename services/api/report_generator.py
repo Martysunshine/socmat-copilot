@@ -1,7 +1,7 @@
 """
 Security Incident Report generator for SOC Copilot Workbench.
 
-Produces a structured 20-section Markdown report from all case data.
+Produces a structured 21-section Markdown report from all case data.
 Reports are saved to reports/generated/ at the repository root.
 All content is derived from stored case data — no AI or invention.
 """
@@ -24,6 +24,7 @@ from models.normalized_event import NormalizedEvent
 from models.detection_finding import DetectionFinding
 from models.malware_triage_result import MalwareTriageResult
 from models.network_analysis_result import NetworkAnalysisResult
+from models.pcap_analysis_result import PcapAnalysisResult
 from models.correlated_finding import CorrelatedFinding
 from models.case_mitre_mapping import CaseMitreMapping
 
@@ -125,7 +126,7 @@ def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
     md = _build_report(
         case, evidence, timeline, norm_events,
         det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-        playbooks, notes, iocs,
+        playbooks, notes, iocs, db=db,
     )
 
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -174,7 +175,7 @@ def _load_json(value, fallback=None):
 def _build_report(
     case, evidence, timeline, norm_events,
     det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-    playbooks=None, notes=None, iocs=None,
+    playbooks=None, notes=None, iocs=None, db=None,
 ) -> str:
     lines: List[str] = []
 
@@ -668,9 +669,126 @@ def _build_report(
     else:
         add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
 
-    # ── 20. Final Status ────────────────────────────────────────────────────────
+    # ── 20. Detection Coverage and Telemetry Gaps ───────────────────────────────
     add('')
-    add('## 20. Final Status')
+    add('## 20. Detection Coverage and Telemetry Gaps')
+    add('')
+    _triggered_rule_ids = {df.rule_id for df in det_findings}
+    _total_sigma = 0
+    _all_mitre_techniques: set = set()
+    try:
+        import sys as _sys
+        from pathlib import Path as _Path
+        _rr = _Path(__file__).resolve().parent.parent.parent
+        if str(_rr) not in _sys.path:
+            _sys.path.insert(0, str(_rr))
+        from integrations.sigma.loader import get_cached_rules as _get_sigma
+        _sigma_rules = _get_sigma()
+        _total_sigma = len(_sigma_rules)
+        for _sr in _sigma_rules:
+            for _tag in _sr.get("tags", []):
+                if _tag.lower().startswith("attack.t"):
+                    _all_mitre_techniques.add(_tag.replace("attack.", "").upper())
+    except Exception:
+        _sigma_rules = []
+
+    _covered_mitre: set = set()
+    for _df in det_findings:
+        _rule_obj = next((r for r in _sigma_rules if r["id"] == _df.rule_id), None)
+        if _rule_obj:
+            for _tag in _rule_obj.get("tags", []):
+                if _tag.lower().startswith("attack.t"):
+                    _covered_mitre.add(_tag.replace("attack.", "").upper())
+
+    _cov_pct = round(len(_covered_mitre) / len(_all_mitre_techniques) * 100, 1) if _all_mitre_techniques else 0.0
+
+    add(f'**Rules Triggered:** {len(_triggered_rule_ids)} of {_total_sigma} loaded Sigma rules fired on case evidence.')
+    add('')
+    add(f'**MITRE Coverage:** {len(_covered_mitre)} of {len(_all_mitre_techniques)} technique(s) covered by triggered rules ({_cov_pct}%).')
+    add('')
+
+    _available_log_sources: List[str] = []
+    if norm_events:
+        _available_log_sources.append('Windows Event Logs')
+    _net_log_types = {r.log_type for r in net_results} if net_results else set()
+    if any(lt in ("conn", "dns", "http") or "zeek" in lt for lt in _net_log_types):
+        _available_log_sources.append('Zeek Network Logs')
+    if any("suricata" in lt for lt in _net_log_types):
+        _available_log_sources.append('Suricata IDS Alerts')
+    _has_pcap = (
+        db.query(PcapAnalysisResult.id).filter(PcapAnalysisResult.case_id == case.id).first()
+        if db else None
+    )
+    if _has_pcap:
+        _available_log_sources.append('PCAP Network Capture')
+    if yara_results:
+        _available_log_sources.append('YARA Static Analysis')
+
+    if _available_log_sources:
+        add('**Available Log Sources:**')
+        add('')
+        for _src in sorted(_available_log_sources):
+            add(f'- {_src}')
+        add('')
+    else:
+        add('No log sources collected for this case.')
+        add('')
+
+    _all_expected_sources = {
+        'Windows Event Logs', 'Zeek Network Logs', 'Suricata IDS Alerts',
+        'PCAP Network Capture', 'YARA Static Analysis',
+    }
+    _missing_sources = sorted(_all_expected_sources - set(_available_log_sources))
+    if _missing_sources:
+        add('**Missing Log Sources:**')
+        add('')
+        for _ms in _missing_sources:
+            add(f'- {_ms} — not collected for this case')
+        add('')
+
+    _event_ids: set = {str(e.event_id) for e in norm_events if e.event_id}
+    _has_dns_logs = any("dns" in (lt or "").lower() for lt in _net_log_types)
+    _has_http_logs = any("http" in (lt or "").lower() for lt in _net_log_types)
+    if _has_pcap and db:
+        _pcap_r = db.query(PcapAnalysisResult).filter(
+            PcapAnalysisResult.case_id == case.id
+        ).first()
+        if _pcap_r and _pcap_r.dns_queries:
+            _has_dns_logs = True
+        if _pcap_r and _pcap_r.http_requests:
+            _has_http_logs = True
+
+    _GAP_CHECKS = [
+        ("PowerShell Script Block Logs (EID 4103/4104)", not {"4103", "4104"}.intersection(_event_ids), "T1059.001, T1027"),
+        ("Sysmon EID 1 / Windows EID 4688 (Process Creation)", not {"1", "4688"}.intersection(_event_ids), "T1059, T1036, T1055"),
+        ("Sysmon EID 3 (Network Connections)", "3" not in _event_ids, "T1071, T1021, T1090"),
+        ("DNS Query Logs", not _has_dns_logs, "T1071.004, T1568.002"),
+        ("Proxy / HTTP Logs", not _has_http_logs, "T1071.001, T1041"),
+        ("EDR Process Tree / Memory Telemetry", True, "T1055, T1027.002"),
+        ("Authentication Logs (EID 4624/4625/4768/4769)", not {"4624", "4625", "4768", "4769", "4776"}.intersection(_event_ids), "T1110, T1078, T1558"),
+    ]
+    _gaps = [(name, techs) for name, absent, techs in _GAP_CHECKS if absent]
+    if _gaps:
+        add('**Telemetry Gaps Identified:**')
+        add('')
+        add('| Missing Log Source | Related MITRE Techniques |')
+        add('|--------------------|--------------------------|')
+        for _gap_name, _gap_techs in _gaps:
+            add(f'| {_gap_name} | {_gap_techs} |')
+        add('')
+        add(
+            '*These gaps represent log sources not present in this case. '
+            'Collecting them would improve detection confidence for future investigations. '
+            'This assessment reflects available case data only — absence of evidence '
+            'does not indicate absence of compromise.*'
+        )
+    else:
+        add('No major telemetry gaps identified based on available case data.')
+    add('')
+
+    # ── 21. Final Status ────────────────────────────────────────────────────────
+    add('')
+    add('## 21. Final Status')
     add('')
     status_desc = {
         'open': 'Investigation has been opened. Initial triage is pending.',

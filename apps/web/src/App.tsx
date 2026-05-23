@@ -15,6 +15,7 @@ import ElasticPage from './pages/ElasticPage'
 import ElasticLivePage from './pages/ElasticLivePage'
 import RuleAuthoringPage from './pages/RuleAuthoringPage'
 import PlaybooksPage from './pages/PlaybooksPage'
+import CoveragePage from './pages/CoveragePage'
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="elastic-live" element={<ElasticLivePage />} />
           <Route path="rules/author" element={<RuleAuthoringPage />} />
           <Route path="playbooks" element={<PlaybooksPage />} />
+          <Route path="coverage" element={<CoveragePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

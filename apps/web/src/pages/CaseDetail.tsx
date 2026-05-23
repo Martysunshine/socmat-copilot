@@ -22,6 +22,7 @@ import PlaybookPanel from '../components/PlaybookPanel'
 import NotesPanel from '../components/NotesPanel'
 import IocPanel from '../components/IocPanel'
 import GraphPanel from '../components/GraphPanel'
+import CoveragePanel from '../components/CoveragePanel'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -302,6 +303,11 @@ export default function CaseDetail() {
       <div className="case-section-label">Investigation Map</div>
 
       <GraphPanel caseId={caseData.id} />
+
+      {/* Detection Coverage */}
+      <div className="case-section-label">Detection Coverage</div>
+
+      <CoveragePanel caseId={caseData.id} />
 
       {/* Reporting & AI */}
       <div className="case-section-label">Reporting &amp; AI</div>

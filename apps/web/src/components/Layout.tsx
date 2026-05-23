@@ -101,6 +101,14 @@ export default function Layout() {
             >
               📋 Playbooks
             </NavLink>
+            <NavLink
+              to="/coverage"
+              className={({ isActive }) =>
+                `nav-item nav-link${isActive ? ' nav-item--active' : ''}`
+              }
+            >
+              🛡 Coverage
+            </NavLink>
             {DISABLED_NAV.map((item) => (
               <button
                 key={item.label}
@@ -120,7 +128,7 @@ export default function Layout() {
       </main>
 
       <footer className="footer">
-        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 30
+        SOC Copilot Workbench — defensive cybersecurity automation &nbsp;|&nbsp; Phase 31
       </footer>
     </div>
   )
