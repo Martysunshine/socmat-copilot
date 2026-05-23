@@ -10,6 +10,7 @@ from models.analyst_note import AnalystNote
 from models.case import Case
 from models.case_playbook import CasePlaybook
 from models.ioc import Ioc
+from models.finding_disposition import FindingDisposition
 from models.evidence import Evidence
 from models.timeline_event import TimelineEvent
 from models.detection_finding import DetectionFinding
@@ -94,6 +95,12 @@ def build_case_context(db: Session, case_id: int) -> dict:
         .filter(Ioc.case_id == case_id)
         .order_by(Ioc.ioc_type, Ioc.normalized_value)
         .limit(50)
+        .all()
+    )
+    dispositions = (
+        db.query(FindingDisposition)
+        .filter(FindingDisposition.case_id == case_id)
+        .order_by(FindingDisposition.created_at)
         .all()
     )
 
@@ -212,6 +219,48 @@ def build_case_context(db: Session, case_id: int) -> dict:
         "entity_graph_summary": _build_entity_summary(case, db, case_id),
         "timeline_narrative": _build_timeline_narrative(timeline),
         "coverage_gaps": _build_coverage_gaps(db, case_id, det_findings),
+        "finding_dispositions": _build_disposition_context(dispositions),
+    }
+
+
+def _build_disposition_context(dispositions: list) -> dict:
+    """Summarise analyst finding dispositions for AI grounding."""
+    if not dispositions:
+        return {
+            "total": 0,
+            "summary": "No findings have been dispositioned yet.",
+            "dispositions": [],
+            "_label": (
+                "Disposition data is analyst-set only. "
+                "AI must not auto-apply or override dispositions. "
+                "AI may suggest possible dispositions as advisory notes — analyst decision is final."
+            ),
+        }
+
+    counts: dict = {}
+    for d in dispositions:
+        counts[d.disposition] = counts.get(d.disposition, 0) + 1
+
+    return {
+        "total": len(dispositions),
+        "counts": counts,
+        "dispositions": [
+            {
+                "finding_type": d.finding_type,
+                "finding_id": d.finding_id,
+                "disposition": d.disposition,
+                "confidence": d.confidence,
+                "reason": d.reason,
+                "analyst": d.analyst_name,
+                "follow_up": d.follow_up_action,
+            }
+            for d in dispositions
+        ],
+        "_label": (
+            "Disposition data is analyst-set only. "
+            "AI must not auto-apply or override dispositions. "
+            "AI may suggest possible dispositions as advisory notes — analyst decision is final."
+        ),
     }
 
 

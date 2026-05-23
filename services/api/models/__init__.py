@@ -19,5 +19,6 @@ from models.case_playbook import CasePlaybook  # noqa: F401
 from models.case_playbook_step import CasePlaybookStep  # noqa: F401
 from models.analyst_note import AnalystNote  # noqa: F401
 from models.ioc import Ioc  # noqa: F401
+from models.finding_disposition import FindingDisposition  # noqa: F401
 
-__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult", "CorrelatedFinding", "CaseMitreMapping", "Report", "SplunkEvent", "ElasticEvent", "SplunkLiveQuery", "ElasticLiveQuery", "PcapAnalysisResult", "PlaybookTemplate", "CasePlaybook", "CasePlaybookStep", "AnalystNote", "Ioc"]
+__all__ = ["Case", "Evidence", "TimelineEvent", "NormalizedEvent", "CaseSigmaRule", "DetectionFinding", "MalwareTriageResult", "NetworkAnalysisResult", "CorrelatedFinding", "CaseMitreMapping", "Report", "SplunkEvent", "ElasticEvent", "SplunkLiveQuery", "ElasticLiveQuery", "PcapAnalysisResult", "PlaybookTemplate", "CasePlaybook", "CasePlaybookStep", "AnalystNote", "Ioc", "FindingDisposition"]

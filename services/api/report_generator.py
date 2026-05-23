@@ -1,7 +1,7 @@
 """
 Security Incident Report generator for SOC Copilot Workbench.
 
-Produces a structured 21-section Markdown report from all case data.
+Produces a structured 22-section Markdown report from all case data.
 Reports are saved to reports/generated/ at the repository root.
 All content is derived from stored case data — no AI or invention.
 """
@@ -27,6 +27,7 @@ from models.network_analysis_result import NetworkAnalysisResult
 from models.pcap_analysis_result import PcapAnalysisResult
 from models.correlated_finding import CorrelatedFinding
 from models.case_mitre_mapping import CaseMitreMapping
+from models.finding_disposition import FindingDisposition
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _REPORTS_DIR = _REPO_ROOT / "reports" / "generated"
@@ -122,11 +123,17 @@ def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
         .order_by(Ioc.ioc_type, Ioc.normalized_value)
         .all()
     )
+    dispositions = (
+        db.query(FindingDisposition)
+        .filter(FindingDisposition.case_id == case_id)
+        .order_by(FindingDisposition.created_at)
+        .all()
+    )
 
     md = _build_report(
         case, evidence, timeline, norm_events,
         det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-        playbooks, notes, iocs, db=db,
+        playbooks, notes, iocs, dispositions=dispositions, db=db,
     )
 
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -175,7 +182,7 @@ def _load_json(value, fallback=None):
 def _build_report(
     case, evidence, timeline, norm_events,
     det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-    playbooks=None, notes=None, iocs=None, db=None,
+    playbooks=None, notes=None, iocs=None, dispositions=None, db=None,
 ) -> str:
     lines: List[str] = []
 
@@ -583,9 +590,62 @@ def _build_report(
     else:
         add('No analyst notes recorded for this case.')
 
-    # ── 17. Analyst Assessment ──────────────────────────────────────────────────
+    # ── 17. Finding Review and Disposition ─────────────────────────────────────
     add('')
-    add('## 17. Analyst Assessment')
+    add('## 17. Finding Review and Disposition')
+    add('')
+    if dispositions:
+        _disp_label = {
+            "true_positive": "True Positive",
+            "false_positive": "False Positive",
+            "benign": "Benign",
+            "suspicious": "Suspicious",
+            "needs_review": "Needs Review",
+            "escalated": "Escalated",
+            "duplicate": "Duplicate",
+            "insufficient_data": "Insufficient Data",
+        }
+        _disp_groups: dict = {}
+        for _d in dispositions:
+            _disp_groups.setdefault(_d.disposition, []).append(_d)
+
+        _order = ["true_positive", "false_positive", "benign", "suspicious",
+                  "escalated", "duplicate", "insufficient_data", "needs_review"]
+        for _key in _order:
+            if _key not in _disp_groups:
+                continue
+            _group = _disp_groups[_key]
+            _lbl = _disp_label.get(_key, _key.replace("_", " ").title())
+            add(f'**{_lbl} ({len(_group)})**')
+            add('')
+            for _d in _group:
+                _ft = _d.finding_type.replace("_", " ").title()
+                _who = f" — *{_d.analyst_name}*" if _d.analyst_name else ""
+                _conf = f" [confidence: {_d.confidence}]"
+                add(f'- {_ft} #{_d.finding_id}{_conf}{_who}')
+                if _d.reason:
+                    add(f'  - Reason: {_d.reason}')
+                if _d.follow_up_action:
+                    add(f'  - Follow-up: {_d.follow_up_action}')
+            add('')
+
+        _fp_count = len(_disp_groups.get("false_positive", []))
+        _nr_count = len(_disp_groups.get("needs_review", []))
+        if _fp_count > 0:
+            add(
+                f'*{_fp_count} finding(s) marked as false positive. '
+                'These are documented here for auditing purposes and excluded from severity analysis.*'
+            )
+            add('')
+        if _nr_count > 0:
+            add(f'*{_nr_count} finding(s) still require analyst review before this case can be closed.*')
+            add('')
+    else:
+        add('No findings have been dispositioned for this case. Review all detection findings and record analyst judgment.')
+
+    # ── 18. Analyst Assessment ──────────────────────────────────────────────────
+    add('')
+    add('## 18. Analyst Assessment')
     add('')
     has_data = any([det_findings, yara_hits, net_results, corr_findings, mitre_mappings])
     if not has_data:
@@ -626,9 +686,9 @@ def _build_report(
             )
         add(''.join(assessment))
 
-    # ── 18. Recommended Actions ─────────────────────────────────────────────────
+    # ── 19. Recommended Actions ─────────────────────────────────────────────────
     add('')
-    add('## 18. Recommended Actions')
+    add('## 19. Recommended Actions')
     add('')
     rec_actions: List[str] = []
     seen_recs: set = set()
@@ -651,9 +711,9 @@ def _build_report(
         add('- Escalate to senior analyst or IR team if indicators of compromise are confirmed.')
         add('- Preserve evidence and document all investigative steps taken.')
 
-    # ── 19. Detection Opportunities ─────────────────────────────────────────────
+    # ── 20. Detection Opportunities ─────────────────────────────────────────────
     add('')
-    add('## 19. Detection Opportunities')
+    add('## 20. Detection Opportunities')
     add('')
     if mitre_mappings:
         add('Based on ATT&CK techniques identified in this case, the following monitoring improvements are recommended:')
@@ -669,9 +729,9 @@ def _build_report(
     else:
         add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
 
-    # ── 20. Detection Coverage and Telemetry Gaps ───────────────────────────────
+    # ── 21. Detection Coverage and Telemetry Gaps ───────────────────────────────
     add('')
-    add('## 20. Detection Coverage and Telemetry Gaps')
+    add('## 21. Detection Coverage and Telemetry Gaps')
     add('')
     _triggered_rule_ids = {df.rule_id for df in det_findings}
     _total_sigma = 0
@@ -786,9 +846,9 @@ def _build_report(
         add('No major telemetry gaps identified based on available case data.')
     add('')
 
-    # ── 21. Final Status ────────────────────────────────────────────────────────
+    # ── 22. Final Status ────────────────────────────────────────────────────────
     add('')
-    add('## 21. Final Status')
+    add('## 22. Final Status')
     add('')
     status_desc = {
         'open': 'Investigation has been opened. Initial triage is pending.',

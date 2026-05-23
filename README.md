@@ -37,6 +37,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Investigation Map** | Interactive entity graph built from all case data; 14+ node types (hosts, users, IPs, domains, processes, hashes, Sigma/YARA/Suricata rules, MITRE techniques, correlated findings, IOCs); per-type filter toggles; node/edge click detail; export graph JSON |
 | **Timeline Replay** | Interactive replay mode — step through timeline events with play/pause/next/prev/restart/speed controls; per-event "what this means" explanations, recommended focus, MITRE mappings, evidence links, and analyst notes; keyboard shortcuts (← → space); copy event summary; severity and source filters |
 | **Detection Coverage** | Global Sigma rule browser with MITRE tags, logsource, and field metadata; per-case coverage analysis showing triggered/not-triggered/blocked rule counts; MITRE technique coverage percentage; 7-gap telemetry gap catalogue with why-it-matters and remediation recommendations; coverage section in reports; coverage_gaps AI context |
+| **Finding Disposition** | Analyst-controlled disposition workflow for all finding types; 8 disposition values (true positive, false positive, benign, suspicious, needs review, escalated, duplicate, insufficient data); confidence level; reason, analyst name, follow-up action; summary metric cards; filter by disposition; disposition section in reports; AI advisory context (analyst decision is final) |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -344,6 +345,10 @@ soc-copilot-workbench/
 | `/coverage/rules` | GET | All Sigma rules with MITRE tags, logsource, required fields, and severity (filter params: `rule_type`, `severity`, `logsource`, `tactic`) |
 | `/cases/{id}/coverage` | GET | Per-case coverage — triggered/not-triggered/blocked rule counts, available log sources, MITRE coverage percentage |
 | `/cases/{id}/telemetry-gaps` | GET | Telemetry gap analysis — missing log sources with why-it-matters and recommendations |
+| `/cases/{id}/dispositions` | POST | Create a finding disposition (finding_type, finding_id, disposition, confidence, reason) |
+| `/cases/{id}/dispositions` | GET | List all dispositions with summary counts (filter: `finding_type`, `finding_id`, `disposition`) |
+| `/cases/{id}/dispositions/{did}` | PATCH | Update disposition, confidence, reason, analyst_name, or follow_up_action |
+| `/cases/{id}/dispositions/{did}` | DELETE | Remove a disposition |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -395,7 +400,8 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 29: Entity graph and investigation map
 - [x] Phase 30: Attack timeline replay mode
 - [x] Phase 31: Detection coverage and telemetry gap analysis
-- [ ] Phase 32: Finding disposition and false positive review
+- [x] Phase 32: Finding disposition and false positive review
+- [ ] Phase 33: Report readiness score
 - [ ] Phase 33: Report readiness score
 
 ---
