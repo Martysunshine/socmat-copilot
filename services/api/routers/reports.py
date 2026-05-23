@@ -18,7 +18,9 @@ from database import get_db
 from models.case import Case
 from models.report import Report
 from report_generator import generate_report, _REPO_ROOT
+from report_readiness import compute_readiness
 from pdf_generator import generate_pdf
+from schemas.readiness_schema import ReadinessResponse
 from schemas.report_schema import ReportResponse
 
 router = APIRouter(tags=["reports"])
@@ -83,6 +85,15 @@ def get_case_report_content(case_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Report file not found on disk")
 
     return path.read_text(encoding='utf-8')
+
+
+@router.get("/cases/{case_id}/report/readiness", response_model=ReadinessResponse)
+def get_report_readiness(case_id: int, db: Session = Depends(get_db)):
+    """Compute a report readiness score for a case based on 22 completeness checks."""
+    if not db.query(Case).filter(Case.id == case_id).first():
+        raise HTTPException(status_code=404, detail="Case not found")
+    result = compute_readiness(db, case_id)
+    return result
 
 
 @router.get("/cases/{case_id}/report/pdf")

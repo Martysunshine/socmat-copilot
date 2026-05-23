@@ -1,7 +1,7 @@
 """
 Security Incident Report generator for SOC Copilot Workbench.
 
-Produces a structured 22-section Markdown report from all case data.
+Produces a structured 23-section Markdown report from all case data.
 Reports are saved to reports/generated/ at the repository root.
 All content is derived from stored case data — no AI or invention.
 """
@@ -28,6 +28,7 @@ from models.pcap_analysis_result import PcapAnalysisResult
 from models.correlated_finding import CorrelatedFinding
 from models.case_mitre_mapping import CaseMitreMapping
 from models.finding_disposition import FindingDisposition
+from report_readiness import compute_readiness
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _REPORTS_DIR = _REPO_ROOT / "reports" / "generated"
@@ -130,10 +131,12 @@ def generate_report(db: Session, case_id: int) -> Tuple[str, str]:
         .all()
     )
 
+    readiness = compute_readiness(db, case_id)
+
     md = _build_report(
         case, evidence, timeline, norm_events,
         det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-        playbooks, notes, iocs, dispositions=dispositions, db=db,
+        playbooks, notes, iocs, dispositions=dispositions, readiness=readiness, db=db,
     )
 
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -182,7 +185,7 @@ def _load_json(value, fallback=None):
 def _build_report(
     case, evidence, timeline, norm_events,
     det_findings, yara_results, net_results, corr_findings, mitre_mappings,
-    playbooks=None, notes=None, iocs=None, dispositions=None, db=None,
+    playbooks=None, notes=None, iocs=None, dispositions=None, readiness=None, db=None,
 ) -> str:
     lines: List[str] = []
 
@@ -862,6 +865,49 @@ def _build_report(
     add(status_desc.get(case.status, 'Status not recognized.'))
     add('')
     add(f'*Report generated on {now_str} by SOC Copilot Workbench.*')
+
+    # ── 23. Report Completeness ─────────────────────────────────────────────────
+    add('')
+    add('## 23. Report Completeness')
+    add('')
+    if readiness:
+        _score = readiness.get("total_score", 0)
+        _grade = readiness.get("grade", "unknown")
+        _grade_upper = _grade.upper()
+        add(f'**Readiness Score:** {_score}% — {_grade_upper}')
+        add('')
+        _missing = readiness.get("missing_checks", [])
+        if _missing:
+            add('**Missing or incomplete items:**')
+            add('')
+            for _m in _missing:
+                add(f'- {_m["name"]}: {_m["description"]}')
+            add('')
+        _warns = readiness.get("warnings", [])
+        if _warns:
+            add('**Limitations and warnings:**')
+            add('')
+            for _w in _warns:
+                add(f'- {_w}')
+            add('')
+        _recs = readiness.get("recommendations", [])
+        if _recs:
+            add('**Recommended improvements:**')
+            add('')
+            for _r in _recs:
+                add(f'- {_r}')
+            add('')
+        if not _missing and not _warns:
+            add('All major report completeness checks passed.')
+            add('')
+        add(
+            '*This completeness assessment is based on what data was present in the case '
+            'at report generation time. Missing items do not imply absence of threat — '
+            'investigation may still be in progress.*'
+        )
+    else:
+        add('Readiness score not available for this report.')
+    add('')
 
     return '\n'.join(lines)
 

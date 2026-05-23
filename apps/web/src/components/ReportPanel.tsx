@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { generateReport, getReport, getReportContent, downloadReportPdf, type Report } from '../api/reports'
+import { getReadiness, type ReadinessResult } from '../api/readiness'
 
 interface Props {
   caseId: number
@@ -14,12 +15,14 @@ export default function ReportPanel({ caseId, caseTitle }: Props) {
   const [previewing, setPreviewing] = useState(false)
   const [previewContent, setPreviewContent] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [readiness, setReadiness] = useState<ReadinessResult | null>(null)
 
   useEffect(() => {
     getReport(caseId)
       .then(setReport)
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
+    getReadiness(caseId).then(setReadiness).catch(() => {/* non-critical */})
   }, [caseId])
 
   async function handleGenerate() {
@@ -99,6 +102,23 @@ export default function ReportPanel({ caseId, caseTitle }: Props) {
           {generating ? 'Generating…' : report ? 'Regenerate Report' : 'Generate Report'}
         </button>
       </div>
+
+      {readiness && readiness.total_score < 70 && (
+        <div style={{
+          background: 'rgba(255,165,0,0.08)', border: '1px solid rgba(255,165,0,0.3)',
+          borderRadius: 6, padding: '10px 14px', marginTop: 10, fontSize: 12,
+        }}>
+          <strong style={{ color: 'var(--severity-medium)' }}>
+            ⚠ Report readiness: {readiness.total_score}% ({readiness.grade.toUpperCase()})
+          </strong>
+          {readiness.missing_checks.length > 0 && (
+            <div style={{ marginTop: 4, color: 'var(--text-muted)' }}>
+              Missing: {readiness.missing_checks.map(c => c.name).join(', ')}.
+              The report can still be generated, but may be incomplete.
+            </div>
+          )}
+        </div>
+      )}
 
       {error && <div className="upload-error" style={{ marginTop: 12 }}>{error}</div>}
 

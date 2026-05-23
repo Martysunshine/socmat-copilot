@@ -40,14 +40,13 @@ This document describes the full planned build progression. Each phase produces 
 | 30 | Attack Timeline Replay Mode | Interactive timeline replay modal; step through all timeline events with play/pause/next/prev/restart/speed controls; per-event explanations ("what this means"), recommended focus, affected entities, related evidence, related findings, and MITRE mappings; event list sidebar with severity highlight; keyboard shortcuts; copy event summary; severity and source filters; Attack Narrative report section; timeline_narrative AI context |
 | 31 | Detection Coverage and Telemetry Gap Analysis | Global `/coverage` rule browser showing all Sigma rules with MITRE tags, logsource, and detection fields; per-case coverage panel showing triggered/not-triggered/blocked rule counts; MITRE coverage percentage; available vs missing log sources; 7-gap telemetry gap catalogue (PowerShell script block logs, Sysmon EID 1/3, DNS, HTTP/proxy, EDR, auth logs) with why-it-matters and recommendations; new report section "Detection Coverage and Telemetry Gaps"; coverage_gaps AI context key |
 | 32 | Finding Disposition and False Positive Review | Analyst-controlled disposition workflow for all finding types (Sigma, YARA, Suricata, Zeek, PCAP, correlation, Splunk, Elastic); 8 disposition values (true_positive, false_positive, benign, suspicious, needs_review, escalated, duplicate, insufficient_data); confidence level (low/medium/high); reason, analyst name, follow-up action per disposition; summary metric cards (TP/FP/Benign/Review/Escalated); filter by disposition; add/edit/delete dispositions; report section 17 "Finding Review and Disposition"; finding_dispositions AI context (advisory only — AI cannot auto-apply dispositions) |
+| 33 | Report Readiness Score | 22-check completeness scoring system across 10 sections (case metadata, evidence, timeline, detections, network analysis, malware triage, correlation, MITRE ATT&CK, analyst review, report content); 0–100 score with grades (poor/fair/good/excellent); per-section progress bars; missing-check list with actionable recommendations; `GET /cases/{id}/report/readiness` endpoint; ReadinessWidget in case detail; readiness warning banner in ReportPanel when score < 70; section 23 "Report Completeness" in generated reports; report_readiness AI context key |
 
 ---
 
 ## Planned Phases
 
-| Phase | Name |
-|-------|------|
-| 33 | Report Readiness Score |
+No further phases are currently scheduled. All 33 planned phases are complete.
 
 ---
 

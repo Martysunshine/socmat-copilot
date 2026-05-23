@@ -12,6 +12,7 @@ from models.case_playbook import CasePlaybook
 from models.ioc import Ioc
 from models.finding_disposition import FindingDisposition
 from models.evidence import Evidence
+from report_readiness import compute_readiness
 from models.timeline_event import TimelineEvent
 from models.detection_finding import DetectionFinding
 from models.malware_triage_result import MalwareTriageResult
@@ -220,6 +221,7 @@ def build_case_context(db: Session, case_id: int) -> dict:
         "timeline_narrative": _build_timeline_narrative(timeline),
         "coverage_gaps": _build_coverage_gaps(db, case_id, det_findings),
         "finding_dispositions": _build_disposition_context(dispositions),
+        "report_readiness": _build_readiness_context(db, case_id),
     }
 
 
@@ -358,6 +360,26 @@ def _build_coverage_gaps(db: Session, case_id: int, det_findings: list) -> dict:
             "Coverage gap data is derived from case evidence only. "
             "Gaps indicate missing telemetry — they do not mean no attack occurred. "
             "Do not claim data exists if not present. Recommend collecting missing logs."
+        ),
+    }
+
+
+def _build_readiness_context(db: Session, case_id: int) -> dict:
+    """Summarise report readiness score for AI context so it can recommend improvements."""
+    result = compute_readiness(db, case_id)
+    if not result:
+        return {"available": False}
+    return {
+        "available": True,
+        "total_score": result["total_score"],
+        "grade": result["grade"],
+        "missing_check_names": [c["name"] for c in result["missing_checks"]],
+        "warnings": result["warnings"],
+        "recommendations": result["recommendations"],
+        "_label": (
+            "Report readiness data is computed from case completeness checks. "
+            "AI may explain which items are missing and how to add them. "
+            "AI must not fabricate missing report sections or claim they exist."
         ),
     }
 

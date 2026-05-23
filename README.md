@@ -38,6 +38,7 @@ Every analysis runs on your machine. No cloud upload, no telemetry, no SaaS depe
 | **Timeline Replay** | Interactive replay mode — step through timeline events with play/pause/next/prev/restart/speed controls; per-event "what this means" explanations, recommended focus, MITRE mappings, evidence links, and analyst notes; keyboard shortcuts (← → space); copy event summary; severity and source filters |
 | **Detection Coverage** | Global Sigma rule browser with MITRE tags, logsource, and field metadata; per-case coverage analysis showing triggered/not-triggered/blocked rule counts; MITRE technique coverage percentage; 7-gap telemetry gap catalogue with why-it-matters and remediation recommendations; coverage section in reports; coverage_gaps AI context |
 | **Finding Disposition** | Analyst-controlled disposition workflow for all finding types; 8 disposition values (true positive, false positive, benign, suspicious, needs review, escalated, duplicate, insufficient data); confidence level; reason, analyst name, follow-up action; summary metric cards; filter by disposition; disposition section in reports; AI advisory context (analyst decision is final) |
+| **Report Readiness Score** | 22-check completeness scoring across 10 sections (metadata, evidence, timeline, detections, network, malware, correlation, MITRE, analyst review, report content); 0–100 score with grade (poor/fair/good/excellent); per-section progress bars; missing-check list with actionable recommendations; warning banner in report panel if score < 70; completeness section in generated reports; AI context key for readiness recommendations |
 | **Elastic Export** | Parse Kibana/Elasticsearch NDJSON exports; KQL/ES\|QL hunt template assistant |
 | **Investigation Correlation** | Cross-module correlation engine surfaces multi-source attack patterns |
 | **MITRE ATT&CK Mapping** | Auto-map findings to ATT&CK techniques; view per-tactic coverage |
@@ -349,6 +350,7 @@ soc-copilot-workbench/
 | `/cases/{id}/dispositions` | GET | List all dispositions with summary counts (filter: `finding_type`, `finding_id`, `disposition`) |
 | `/cases/{id}/dispositions/{did}` | PATCH | Update disposition, confidence, reason, analyst_name, or follow_up_action |
 | `/cases/{id}/dispositions/{did}` | DELETE | Remove a disposition |
+| `/cases/{id}/report/readiness` | GET | Compute report readiness score — 22 checks, grade, section scores, recommendations |
 
 Interactive docs: http://localhost:8000/docs
 
@@ -401,8 +403,7 @@ See [docs/roadmap.md](docs/roadmap.md) for the full planned roadmap.
 - [x] Phase 30: Attack timeline replay mode
 - [x] Phase 31: Detection coverage and telemetry gap analysis
 - [x] Phase 32: Finding disposition and false positive review
-- [ ] Phase 33: Report readiness score
-- [ ] Phase 33: Report readiness score
+- [x] Phase 33: Report readiness score
 
 ---
 

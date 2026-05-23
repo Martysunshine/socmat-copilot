@@ -24,6 +24,7 @@ import IocPanel from '../components/IocPanel'
 import GraphPanel from '../components/GraphPanel'
 import CoveragePanel from '../components/CoveragePanel'
 import DispositionPanel from '../components/DispositionPanel'
+import ReadinessWidget from '../components/ReadinessWidget'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -314,6 +315,11 @@ export default function CaseDetail() {
       <div className="case-section-label">Finding Disposition</div>
 
       <DispositionPanel caseId={caseData.id} />
+
+      {/* Report Readiness */}
+      <div className="case-section-label">Report Readiness</div>
+
+      <ReadinessWidget caseId={caseData.id} />
 
       {/* Reporting & AI */}
       <div className="case-section-label">Reporting &amp; AI</div>
