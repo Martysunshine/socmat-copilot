@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SOC Copilot Workbench API",
     description="Local-first defensive SOC automation platform",
-    version="0.29.0",
+    version="0.30.0",
     lifespan=lifespan,
 )
 

@@ -37,6 +37,7 @@ This document describes the full planned build progression. Each phase produces 
 | 27 | Analyst Notes and Evidence Annotations | Polymorphic analyst notes attached to any case entity; 7 note types; filter tabs; inline edit/delete; notes section in reports; AI context labels notes as analyst-written, not verified evidence |
 | 28 | IOC Extraction and IOC Basket | Automatic IOC extraction from all case data sources; 16 IOC types (IPs, domains, URLs, hashes, users, hosts, processes, paths, ports, user agents); deduplication; confidence levels; analyst tagging (suspicious/confirmed malicious/benign/needs review/internal/external); CSV/JSON export; copy; manual add; IOC section in reports; IOC context in AI assistant |
 | 29 | Entity Graph and Investigation Map | Interactive React Flow entity graph built from all case data; 14+ node types (hosts, users, IPs, domains, processes, hashes, Sigma/YARA/Suricata detections, MITRE techniques, correlated findings, IOCs); 14 edge types; per-type filter toggles; node/edge detail panel; export graph JSON; entity map summary section in reports; graph summary in AI context |
+| 30 | Attack Timeline Replay Mode | Interactive timeline replay modal; step through all timeline events with play/pause/next/prev/restart/speed controls; per-event explanations ("what this means"), recommended focus, affected entities, related evidence, related findings, and MITRE mappings; event list sidebar with severity highlight; keyboard shortcuts; copy event summary; severity and source filters; Attack Narrative report section; timeline_narrative AI context |
 
 ---
 
@@ -44,8 +45,6 @@ This document describes the full planned build progression. Each phase produces 
 
 | Phase | Name |
 |-------|------|
-| 30 | Attack Timeline Replay Mode |
-| 30 | Attack Timeline Replay Mode |
 | 31 | Detection Coverage and Telemetry Gap Analysis |
 | 32 | Finding Disposition and False Positive Review |
 | 33 | Report Readiness Score |

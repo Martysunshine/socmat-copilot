@@ -1,7 +1,7 @@
 """
 Security Incident Report generator for SOC Copilot Workbench.
 
-Produces a structured 19-section Markdown report from all case data.
+Produces a structured 20-section Markdown report from all case data.
 Reports are saved to reports/generated/ at the repository root.
 All content is derived from stored case data — no AI or invention.
 """
@@ -280,9 +280,21 @@ def _build_report(
     else:
         add('No timeline events recorded.')
 
-    # ── 6. Evidence Reviewed ────────────────────────────────────────────────────
+    # ── 6. Attack Narrative ─────────────────────────────────────────────────────
     add('')
-    add('## 6. Evidence Reviewed')
+    add('## 6. Attack Narrative')
+    add('')
+    if timeline:
+        narrative = _build_attack_narrative(timeline)
+        add(narrative)
+        add('')
+        add('*This narrative is derived from recorded timeline events only. No events were inferred or fabricated.*')
+    else:
+        add('No timeline events recorded. Run analysis modules to populate timeline data.')
+
+    # ── 7. Evidence Reviewed ────────────────────────────────────────────────────
+    add('')
+    add('## 7. Evidence Reviewed')
     add('')
     if evidence:
         add('| # | Original Filename | Type | Size | SHA-256 (prefix) | Uploaded |')
@@ -294,9 +306,9 @@ def _build_report(
     else:
         add('No evidence files uploaded.')
 
-    # ── 7. Detection Findings ───────────────────────────────────────────────────
+    # ── 8. Detection Findings ───────────────────────────────────────────────────
     add('')
-    add('## 7. Detection Findings (Sigma)')
+    add('## 8. Detection Findings (Sigma)')
     add('')
     if det_findings:
         for df in det_findings:
@@ -314,9 +326,9 @@ def _build_report(
     else:
         add('No Sigma detection findings.')
 
-    # ── 8. Malware Triage Findings ──────────────────────────────────────────────
+    # ── 9. Malware Triage Findings ──────────────────────────────────────────────
     add('')
-    add('## 8. Malware Triage Findings (YARA)')
+    add('## 9. Malware Triage Findings (YARA)')
     add('')
     if yara_results:
         for r in yara_results:
@@ -345,9 +357,9 @@ def _build_report(
     else:
         add('No YARA triage findings.')
 
-    # ── 9. Network Analysis Findings ────────────────────────────────────────────
+    # ── 10. Network Analysis Findings ───────────────────────────────────────────
     add('')
-    add('## 9. Network Analysis Findings (Zeek)')
+    add('## 10. Network Analysis Findings (Zeek)')
     add('')
     if net_results:
         for r in net_results:
@@ -372,9 +384,9 @@ def _build_report(
     else:
         add('No network analysis results.')
 
-    # ── 10. Correlated Findings ─────────────────────────────────────────────────
+    # ── 11. Correlated Findings ─────────────────────────────────────────────────
     add('')
-    add('## 10. Correlated Findings')
+    add('## 11. Correlated Findings')
     add('')
     if corr_findings:
         for cf in corr_findings:
@@ -398,9 +410,9 @@ def _build_report(
     else:
         add('No correlated findings.')
 
-    # ── 11. MITRE ATT&CK Mapping ────────────────────────────────────────────────
+    # ── 12. MITRE ATT&CK Mapping ────────────────────────────────────────────────
     add('')
-    add('## 11. MITRE ATT&CK Mapping')
+    add('## 12. MITRE ATT&CK Mapping')
     add('')
     if mitre_mappings:
         tactic_groups: dict = defaultdict(list)
@@ -418,9 +430,9 @@ def _build_report(
     else:
         add('No MITRE ATT&CK mappings generated. Run ATT&CK mapping on the case first.')
 
-    # ── 12. Investigation Entity Map Summary ───────────────────────────────────
+    # ── 13. Investigation Entity Map Summary ───────────────────────────────────
     add('')
-    add('## 12. Investigation Entity Map Summary')
+    add('## 13. Investigation Entity Map Summary')
     add('')
     _graph_hosts: list = []
     _graph_users: list = []
@@ -478,9 +490,9 @@ def _build_report(
     else:
         add('No entity data available. Run analysis modules to populate the investigation map.')
 
-    # ── 13. Indicators of Compromise ───────────────────────────────────────────
+    # ── 14. Indicators of Compromise ───────────────────────────────────────────
     add('')
-    add('## 13. Indicators of Compromise')
+    add('## 14. Indicators of Compromise')
     add('')
     reportable_iocs = [i for i in (iocs or []) if "benign" not in (json.loads(i.tags_json) if i.tags_json else [])]
     if reportable_iocs:
@@ -516,9 +528,9 @@ def _build_report(
     else:
         add('No IOCs extracted. Run "Extract IOCs" on the case to populate this section.')
 
-    # ── 14. Analyst Playbook Progress ──────────────────────────────────────────
+    # ── 15. Analyst Playbook Progress ──────────────────────────────────────────
     add('')
-    add('## 14. Analyst Playbook Progress')
+    add('## 15. Analyst Playbook Progress')
     add('')
     if playbooks:
         for pb in playbooks:
@@ -538,9 +550,9 @@ def _build_report(
     else:
         add('No investigation playbooks were used for this case.')
 
-    # ── 15. Analyst Notes and Observations ─────────────────────────────────────
+    # ── 16. Analyst Notes and Observations ─────────────────────────────────────
     add('')
-    add('## 15. Analyst Notes and Observations')
+    add('## 16. Analyst Notes and Observations')
     add('')
     if notes:
         # Priority order for report inclusion
@@ -570,9 +582,9 @@ def _build_report(
     else:
         add('No analyst notes recorded for this case.')
 
-    # ── 16. Analyst Assessment ──────────────────────────────────────────────────
+    # ── 17. Analyst Assessment ──────────────────────────────────────────────────
     add('')
-    add('## 16. Analyst Assessment')
+    add('## 17. Analyst Assessment')
     add('')
     has_data = any([det_findings, yara_hits, net_results, corr_findings, mitre_mappings])
     if not has_data:
@@ -613,9 +625,9 @@ def _build_report(
             )
         add(''.join(assessment))
 
-    # ── 17. Recommended Actions ─────────────────────────────────────────────────
+    # ── 18. Recommended Actions ─────────────────────────────────────────────────
     add('')
-    add('## 17. Recommended Actions')
+    add('## 18. Recommended Actions')
     add('')
     rec_actions: List[str] = []
     seen_recs: set = set()
@@ -638,9 +650,9 @@ def _build_report(
         add('- Escalate to senior analyst or IR team if indicators of compromise are confirmed.')
         add('- Preserve evidence and document all investigative steps taken.')
 
-    # ── 18. Detection Opportunities ─────────────────────────────────────────────
+    # ── 19. Detection Opportunities ─────────────────────────────────────────────
     add('')
-    add('## 18. Detection Opportunities')
+    add('## 19. Detection Opportunities')
     add('')
     if mitre_mappings:
         add('Based on ATT&CK techniques identified in this case, the following monitoring improvements are recommended:')
@@ -656,9 +668,9 @@ def _build_report(
     else:
         add('Run MITRE ATT&CK mapping first to identify detection coverage gaps.')
 
-    # ── 19. Final Status ────────────────────────────────────────────────────────
+    # ── 20. Final Status ────────────────────────────────────────────────────────
     add('')
-    add('## 19. Final Status')
+    add('## 20. Final Status')
     add('')
     status_desc = {
         'open': 'Investigation has been opened. Initial triage is pending.',
@@ -674,6 +686,86 @@ def _build_report(
     add(f'*Report generated on {now_str} by SOC Copilot Workbench.*')
 
     return '\n'.join(lines)
+
+
+def _build_attack_narrative(timeline: list) -> str:
+    """Generate a prose attack narrative from timeline events."""
+    if not timeline:
+        return ""
+
+    first_ts = _fmt_dt(timeline[0].timestamp)
+    last_ts = _fmt_dt(timeline[-1].timestamp)
+    segments = [
+        f"The investigation timeline spans from **{first_ts}** to **{last_ts}** "
+        f"and contains **{len(timeline)}** recorded event(s)."
+    ]
+
+    auth_events = [
+        e for e in timeline
+        if any(k in (e.event_type or "").lower() for k in ("logon", "login", "authentication", "4624", "4625"))
+        or any(k in (e.description or "").lower() for k in ("login", "logon", "authentication failure"))
+    ]
+    exec_events = [
+        e for e in timeline
+        if any(k in (e.event_type or "").lower() for k in ("process", "exec", "powershell", "4688"))
+        or "powershell" in (e.description or "").lower()
+    ]
+    net_events = [
+        e for e in timeline
+        if e.source in ("zeek", "suricata", "pcap")
+        or any(k in (e.event_type or "").lower() for k in ("network", "dns", "http", "c2", "beacon"))
+    ]
+    detect_events = [e for e in timeline if e.source in ("sigma", "yara", "correlation")]
+
+    if auth_events:
+        first_auth = auth_events[0]
+        segments.append(
+            f"Authentication activity was first recorded at **{_fmt_dt(first_auth.timestamp)}**: "
+            f"{first_auth.description}"
+        )
+        failed = [e for e in auth_events if "fail" in (e.description or "").lower() or "4625" in (e.event_type or "")]
+        success = [e for e in auth_events if "success" in (e.description or "").lower() or "4624" in (e.event_type or "")]
+        if failed and success:
+            segments.append(
+                f"Failed authentication attempts ({len(failed)}) were followed by a successful logon, "
+                "which may indicate a successful account compromise."
+            )
+
+    if exec_events:
+        first_exec = exec_events[0]
+        connector = "Shortly after authentication," if auth_events else "Execution activity was observed:"
+        segments.append(
+            f"{connector} process or script execution was recorded at **{_fmt_dt(first_exec.timestamp)}**: "
+            f"{first_exec.description}"
+        )
+
+    if net_events:
+        first_net = net_events[0]
+        connector = "Network telemetry then showed" if (auth_events or exec_events) else "Network activity was recorded:"
+        segments.append(
+            f"{connector} outbound communication or network alerts beginning at "
+            f"**{_fmt_dt(first_net.timestamp)}**: {first_net.description}"
+        )
+
+    if detect_events:
+        sources_used = sorted({e.source for e in detect_events})
+        segments.append(
+            f"Detection analysis flagged **{len(detect_events)}** event(s) via "
+            f"{', '.join(s.upper() for s in sources_used)} rules, indicating patterns consistent "
+            "with known attack techniques."
+        )
+
+    uncategorised = [
+        e for e in timeline
+        if e not in auth_events and e not in exec_events and e not in net_events and e not in detect_events
+    ]
+    if uncategorised:
+        segments.append(
+            f"An additional **{len(uncategorised)}** event(s) were recorded across other sources "
+            "and are detailed in the Timeline of Events section above."
+        )
+
+    return "  \n".join(segments)
 
 
 def _build_summary(case, det_findings, yara_results, corr_findings, mitre_mappings) -> str:

@@ -210,6 +210,43 @@ def build_case_context(db: Session, case_id: int) -> dict:
             for i in iocs
         ],
         "entity_graph_summary": _build_entity_summary(case, db, case_id),
+        "timeline_narrative": _build_timeline_narrative(timeline),
+    }
+
+
+def _build_timeline_narrative(timeline: list) -> dict:
+    """Summarise timeline events for AI context — ordered sequence with source and severity."""
+    if not timeline:
+        return {"summary": "No timeline events recorded.", "event_count": 0, "events": []}
+
+    events = [
+        {
+            "order": i + 1,
+            "timestamp": str(te.timestamp),
+            "source": te.source,
+            "event_type": te.event_type,
+            "severity": te.severity,
+            "description": te.description,
+        }
+        for i, te in enumerate(timeline[:40])
+    ]
+
+    sources = sorted({te.source for te in timeline})
+    severities_present = sorted(
+        {te.severity for te in timeline},
+        key=lambda s: ["info", "low", "medium", "high", "critical"].index(s)
+        if s in ["info", "low", "medium", "high", "critical"]
+        else 99,
+    )
+
+    return {
+        "event_count": len(timeline),
+        "sources": sources,
+        "severities_present": severities_present,
+        "first_event_at": str(timeline[0].timestamp),
+        "last_event_at": str(timeline[-1].timestamp),
+        "events": events,
+        "_label": "Timeline data only — treat as analyst-observed events, not AI-generated analysis.",
     }
 
 

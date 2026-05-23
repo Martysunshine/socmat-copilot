@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getTimeline, createTimelineEvent, type TimelineEvent, type TimelineEventCreate } from '../api/evidence'
+import TimelineReplayModal from './TimelineReplayModal'
 
 const SEVERITY_COLORS: Record<string, string> = {
   info: 'var(--text-muted)',
@@ -37,6 +38,7 @@ export default function TimelinePanel({ caseId }: Props) {
   const [form, setForm] = useState<TimelineEventCreate>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [showReplay, setShowReplay] = useState(false)
 
   useEffect(() => {
     getTimeline(caseId)
@@ -76,12 +78,23 @@ export default function TimelinePanel({ caseId }: Props) {
   }
 
   return (
+    <>
+    {showReplay && <TimelineReplayModal caseId={caseId} onClose={() => setShowReplay(false)} />}
     <div className="panel-section">
       <div className="panel-section-header">
         <div className="panel-section-title">Investigation Timeline</div>
-        <button className="btn btn-secondary" onClick={() => { setShowForm(f => !f); setFormError(null) }}>
-          {showForm ? 'Cancel' : '+ Add Event'}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setShowReplay(true)}
+            title="Open interactive timeline replay"
+          >
+            ▶ Replay
+          </button>
+          <button className="btn btn-secondary" onClick={() => { setShowForm(f => !f); setFormError(null) }}>
+            {showForm ? 'Cancel' : '+ Add Event'}
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -194,5 +207,6 @@ export default function TimelinePanel({ caseId }: Props) {
         </div>
       )}
     </div>
+    </>
   )
 }
