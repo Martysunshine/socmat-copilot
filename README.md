@@ -312,7 +312,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📜 License
 
-[MIT](LICENSE) — © 2025 Martin Matysek
+[MIT](LICENSE) — © 2025 SocMat Copilot
 
 ---
 
