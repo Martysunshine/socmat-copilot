@@ -5,10 +5,12 @@ Default: mock provider — deterministic, data-grounded, no external API needed.
 Optional: set AI_PROVIDER=anthropic and ANTHROPIC_API_KEY to use Claude.
 
 Environment variables:
-  AI_PROVIDER      — "mock" (default) | "anthropic" | "openai"
+  AI_PROVIDER       — "mock" (default) | "anthropic" | "openai" | "groq"
   ANTHROPIC_API_KEY — required when AI_PROVIDER=anthropic
   OPENAI_API_KEY    — required when AI_PROVIDER=openai
+  GROQ_API_KEY      — required when AI_PROVIDER=groq
   AI_MODEL          — model ID override (default: claude-haiku-4-5-20251001)
+                      Groq default: llama-3.3-70b-versatile
 """
 
 import json
@@ -34,6 +36,8 @@ def call_ai(mode: str, context: dict) -> dict:
         return _call_anthropic(mode, context)
     if _AI_PROVIDER == "openai":
         return _call_openai(mode, context)
+    if _AI_PROVIDER == "groq":
+        return _call_groq(mode, context)
     return _call_mock(mode, context)
 
 
@@ -289,6 +293,33 @@ def _call_openai(mode: str, context: dict) -> dict:
 
     response = client.chat.completions.create(
         model=os.getenv("AI_MODEL", "gpt-4o-mini"),
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+        max_tokens=1024,
+    )
+    raw = response.choices[0].message.content or ""
+    return _parse_ai_response(raw)
+
+
+# ── Groq provider ───────────────────────────────────────────────────────────────
+
+def _call_groq(mode: str, context: dict) -> dict:
+    try:
+        from openai import OpenAI  # noqa: PLC0415
+    except ImportError as exc:
+        raise RuntimeError("openai package not installed. Run: pip install openai") from exc
+
+    api_key = os.getenv("GROQ_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY environment variable is not set")
+
+    client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+    prompt = build_summarize_prompt(context) if mode == "summarize" else build_recommend_prompt(context)
+
+    response = client.chat.completions.create(
+        model=os.getenv("AI_MODEL", "llama-3.3-70b-versatile"),
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt},

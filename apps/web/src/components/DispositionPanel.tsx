@@ -276,7 +276,7 @@ export default function DispositionPanel({ caseId }: Props) {
     const s = { total: d.dispositions.length, true_positive: 0, false_positive: 0, benign: 0, suspicious: 0, needs_review: 0, escalated: 0, duplicate: 0, insufficient_data: 0 }
     for (const disp of d.dispositions) {
       const k = disp.disposition as keyof typeof s
-      if (k in s) (s[k] as number)++
+      if (k in s) s[k] = (s[k] as number) + 1
     }
     return { ...d, summary: s }
   }

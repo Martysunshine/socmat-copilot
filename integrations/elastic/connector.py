@@ -47,7 +47,9 @@ def _auth_headers(api_key: str) -> dict:
 
 def test_connection() -> dict:
     """
-    Test the Elasticsearch REST API connection via /_cluster/health.
+    Test the Elasticsearch REST API connection via GET / (root info endpoint).
+    Uses the root endpoint instead of /_cluster/health so that read-only API
+    keys without cluster monitor privileges can still verify connectivity.
     Returns: {configured, connected, cluster_info, error, warning}.
     """
     url, api_key, verify = _get_config()
@@ -61,7 +63,7 @@ def test_connection() -> dict:
         }
     try:
         resp = requests.get(
-            f"{url}/_cluster/health",
+            f"{url}/",
             headers=_auth_headers(api_key),
             timeout=10,
             verify=verify,
@@ -75,12 +77,11 @@ def test_connection() -> dict:
                 "warning": SAFETY_WARNING,
             }
         resp.raise_for_status()
-        health = resp.json()
+        data = resp.json()
         cluster_info = {
-            "cluster_name": health.get("cluster_name", "unknown"),
-            "status": health.get("status", "unknown"),
-            "number_of_nodes": health.get("number_of_nodes", 0),
-            "active_shards": health.get("active_shards", 0),
+            "cluster_name": data.get("cluster_name", "unknown"),
+            "version": data.get("version", {}).get("number", "unknown"),
+            "tagline": data.get("tagline", ""),
         }
         return {
             "configured": True,

@@ -21,6 +21,8 @@ Run:
     python server.py
 """
 
+from typing import Optional
+
 from mcp.server.fastmcp import FastMCP
 
 import client as _c
@@ -235,6 +237,230 @@ def generate_incident_report(case_id: int) -> dict:
         return result
     except Exception as exc:
         _c.log_tool_call("generate_incident_report", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+# ── Splunk tools ─────────────────────────────────────────────────────────────────
+
+@mcp.tool()
+def check_splunk_connection() -> dict:
+    """
+    Check whether the live Splunk connector is configured and reachable.
+    Call this before running any live Splunk query to verify SPLUNK_URL and
+    SPLUNK_TOKEN are set and the instance is responding.
+    """
+    try:
+        result = _c.api_get("/splunk/live/status")
+        _c.log_tool_call("check_splunk_connection", None, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("check_splunk_connection", None, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def run_splunk_query(
+    spl_query: str,
+    earliest_time: str = "-24h",
+    latest_time: str = "now",
+    max_results: int = 100,
+    case_id: Optional[int] = None,
+) -> dict:
+    """
+    Run a free-form SPL query against a live Splunk instance.
+    Requires SPLUNK_URL and SPLUNK_TOKEN environment variables.
+    Results are capped at 500 rows; up to 20 sample rows are stored per query.
+    Optionally associate the query with a case by providing case_id.
+    Call check_splunk_connection first to verify the connector is available.
+    """
+    try:
+        body: dict = {
+            "spl_query": spl_query,
+            "earliest_time": earliest_time,
+            "latest_time": latest_time,
+            "max_results": max_results,
+        }
+        if case_id is not None:
+            body["case_id"] = case_id
+        result = _c.api_post("/splunk/live/search", body=body)
+        _c.log_tool_call("run_splunk_query", case_id, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("run_splunk_query", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def run_splunk_template(
+    template_id: str,
+    earliest_time: str = "-24h",
+    latest_time: str = "now",
+    max_results: int = 100,
+    case_id: Optional[int] = None,
+) -> dict:
+    """
+    Run a pre-approved SPL template against a live Splunk instance.
+    Available template IDs: failed_logins, success_after_failures,
+    powershell_encoded, new_service, suspicious_process,
+    rare_parent_child, outbound_connections.
+    Call check_splunk_connection first to verify the connector is available.
+    """
+    try:
+        body: dict = {
+            "earliest_time": earliest_time,
+            "latest_time": latest_time,
+            "max_results": max_results,
+        }
+        if case_id is not None:
+            body["case_id"] = case_id
+        result = _c.api_post(f"/splunk/live/templates/{template_id}/run", body=body)
+        _c.log_tool_call("run_splunk_template", case_id, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("run_splunk_template", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def list_splunk_queries(case_id: Optional[int] = None) -> dict:
+    """
+    List stored Splunk live query history, newest first (up to 100 entries).
+    Optionally filter by case_id to see only queries tied to a specific case.
+    """
+    try:
+        path = "/splunk/live/queries"
+        if case_id is not None:
+            path += f"?case_id={case_id}"
+        result = _c.api_get(path)
+        _c.log_tool_call("list_splunk_queries", case_id, True)
+        return {"queries": result}
+    except Exception as exc:
+        _c.log_tool_call("list_splunk_queries", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def analyze_splunk_export(case_id: int, evidence_id: int) -> dict:
+    """
+    Parse and analyze an uploaded Splunk CSV or JSON export file.
+    Normalizes 11 standard Splunk fields and adds high-signal events to the
+    case timeline. Use list_case_evidence to find a valid evidence_id for a
+    Splunk export file.
+    """
+    try:
+        result = _c.api_post(
+            f"/cases/{case_id}/analyze/splunk-export",
+            params={"evidence_id": evidence_id},
+        )
+        _c.log_tool_call("analyze_splunk_export", case_id, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("analyze_splunk_export", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+# ── Elastic tools ────────────────────────────────────────────────────────────────
+
+@mcp.tool()
+def check_elastic_connection() -> dict:
+    """
+    Check whether the live Elasticsearch connector is configured and reachable.
+    Call this before running any live ES|QL query to verify ELASTIC_URL and
+    ELASTIC_API_KEY are set and the cluster is responding.
+    """
+    try:
+        result = _c.api_get("/elastic/live/status")
+        _c.log_tool_call("check_elastic_connection", None, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("check_elastic_connection", None, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def run_elastic_query(
+    esql_query: str,
+    max_results: int = 50,
+    case_id: Optional[int] = None,
+) -> dict:
+    """
+    Run a free-form ES|QL query against a live Elasticsearch instance (8.11+).
+    Requires ELASTIC_URL and ELASTIC_API_KEY environment variables.
+    Results are capped at 500 rows. Optionally associate with a case via case_id.
+    Call check_elastic_connection first to verify the connector is available.
+    Example: FROM logs-* | WHERE event.category == "authentication" | LIMIT 50
+    """
+    try:
+        body: dict = {"esql_query": esql_query, "max_results": max_results}
+        if case_id is not None:
+            body["case_id"] = case_id
+        result = _c.api_post("/elastic/live/search", body=body)
+        _c.log_tool_call("run_elastic_query", case_id, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("run_elastic_query", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def run_elastic_template(
+    template_id: str,
+    max_results: int = 50,
+    case_id: Optional[int] = None,
+) -> dict:
+    """
+    Run a pre-approved ES|QL hunt template against a live Elasticsearch instance.
+    Available template IDs: encoded_powershell, suspicious_child_process,
+    new_service_creation, rare_outbound_destination, dns_tunneling,
+    auth_failure_then_success, suspicious_script_interpreter.
+    Call check_elastic_connection first to verify the connector is available.
+    """
+    try:
+        body: dict = {"max_results": max_results}
+        if case_id is not None:
+            body["case_id"] = case_id
+        result = _c.api_post(f"/elastic/live/templates/{template_id}/run", body=body)
+        _c.log_tool_call("run_elastic_template", case_id, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("run_elastic_template", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def list_elastic_queries(case_id: Optional[int] = None) -> dict:
+    """
+    List stored Elasticsearch live query history, newest first (up to 100 entries).
+    Optionally filter by case_id to see only queries tied to a specific case.
+    """
+    try:
+        path = "/elastic/live/queries"
+        if case_id is not None:
+            path += f"?case_id={case_id}"
+        result = _c.api_get(path)
+        _c.log_tool_call("list_elastic_queries", case_id, True)
+        return {"queries": result}
+    except Exception as exc:
+        _c.log_tool_call("list_elastic_queries", case_id, False, str(exc))
+        return {"error": str(exc)}
+
+
+@mcp.tool()
+def analyze_elastic_export(case_id: int, evidence_id: int) -> dict:
+    """
+    Parse and analyze an uploaded Kibana NDJSON or Elastic export file.
+    Normalizes ECS fields and adds high-signal events to the case timeline.
+    Use list_case_evidence to find a valid evidence_id for an Elastic export file.
+    """
+    try:
+        result = _c.api_post(
+            f"/cases/{case_id}/analyze/elastic-export",
+            params={"evidence_id": evidence_id},
+        )
+        _c.log_tool_call("analyze_elastic_export", case_id, True)
+        return result
+    except Exception as exc:
+        _c.log_tool_call("analyze_elastic_export", case_id, False, str(exc))
         return {"error": str(exc)}
 
 

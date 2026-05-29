@@ -7,9 +7,11 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-      - AI_PROVIDER=mock
+    env_file:
+      - ./services/api/.env
     volumes:
       - ./services/api:/app
+      - ./integrations:/app/integrations
       - ./uploads:/app/uploads
       - ./reports/generated:/app/reports/generated
     networks:
