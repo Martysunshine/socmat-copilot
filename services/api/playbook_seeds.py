@@ -164,6 +164,63 @@ PLAYBOOK_SEEDS = [
         ],
     },
     {
+        "name": "Ransomware Indicator of Compromise",
+        "description": "Investigate indicators consistent with ransomware activity: volume shadow copy deletion, mass file modification, encryption staging, or ransom note creation. Act quickly — ransomware moves fast.",
+        "alert_type": "ransomware",
+        "severity": "critical",
+        "required_data_sources": ["Windows System (EID 7045)", "Windows Security (EID 4688)", "Sysmon (EID 1, 11, 13)", "YARA triage"],
+        "steps": [
+            {"order": 1, "title": "Confirm Shadow Copy Deletion", "description": "Check for execution of vssadmin.exe with 'delete shadows' arguments or wmic shadowcopy delete (Sysmon EID 1 / Windows EID 4688). This is one of the strongest ransomware indicators."},
+            {"order": 2, "title": "Identify Mass File Modification", "description": "Look for Sysmon EID 11 (FileCreate) events showing a large number of file renames or creations in rapid succession, particularly with unfamiliar extensions appended."},
+            {"order": 3, "title": "Look for Ransom Note Creation", "description": "Check for file creation events for files named README.txt, DECRYPT_INSTRUCTIONS.txt, HOW_TO_RECOVER.html, or similar patterns written across multiple directories."},
+            {"order": 4, "title": "Identify the Ransomware Process", "description": "Determine which process is performing the encryption. Review parent/child process trees for the encrypting process and its origin."},
+            {"order": 5, "title": "Check for Backup Disabling", "description": "Look for commands to disable Windows Backup, stop the Volume Shadow Copy Service (VSS), or modify recovery options via bcdedit.exe or wbadmin.exe."},
+            {"order": 6, "title": "Check for Lateral Spread", "description": "Review network connections and remote logon events to determine whether the ransomware has propagated to other hosts via SMB, RDP, or scheduled tasks."},
+            {"order": 7, "title": "Run YARA Triage on the Executable", "description": "If the ransomware binary or dropper was identified, upload it and run YARA static analysis to identify the ransomware family and extract C2 indicators."},
+            {"order": 8, "title": "Identify Scope of Encryption", "description": "Estimate how many files and hosts are affected. Check shared drives and network shares for encrypted files — ransomware typically targets mapped network drives."},
+            {"order": 9, "title": "Initiate Containment", "description": "Isolate affected hosts from the network immediately. Do not power them off — memory forensics may recover the encryption key. Contact IR leadership."},
+            {"order": 10, "title": "Document and Escalate", "description": "Record all indicators, the ransomware family if identified, the timeline of events, and estimated scope. Escalate to senior IR and notify leadership immediately."},
+        ],
+    },
+    {
+        "name": "Phishing / Suspicious Initial Access",
+        "description": "Investigate a suspected phishing-based initial access event. This covers suspicious email attachments, macro-enabled documents, browser-delivered payloads, and anomalous process trees originating from Office or browser processes.",
+        "alert_type": "phishing",
+        "severity": "high",
+        "required_data_sources": ["Sysmon (EID 1, 3, 11, 22)", "Windows Security (EID 4688)", "Suricata eve.json", "Email gateway logs"],
+        "steps": [
+            {"order": 1, "title": "Identify the Entry Vector", "description": "Determine whether access originated from an email attachment, a browser download, or a malicious link. Review process parent chains — Office apps (WINWORD.EXE, EXCEL.EXE) or browsers spawning unexpected child processes are a strong signal."},
+            {"order": 2, "title": "Review the Suspicious Process Tree", "description": "Examine the full parent-child process chain. Common phishing chains: WINWORD → cmd.exe/PowerShell, or browser → mshta.exe/wscript.exe/cscript.exe. Document each process with its command line."},
+            {"order": 3, "title": "Examine Macro or Script Execution", "description": "If an Office document was involved, check for PowerShell, wscript, or cscript invocation as child processes. Review PowerShell Script Block Logging (EID 4103/4104) for decoded content."},
+            {"order": 4, "title": "Check for File Drops", "description": "Review Sysmon EID 11 for files written by Office or browser processes, particularly to Temp, AppData, or Downloads directories. These may be second-stage payloads."},
+            {"order": 5, "title": "Review Outbound Connections", "description": "Check Sysmon EID 3 and Zeek conn.log for outbound connections initiated immediately after the phishing event. Initial access is often followed by payload download or C2 check-in."},
+            {"order": 6, "title": "Run YARA on Downloaded Files", "description": "If any suspicious files were dropped or downloaded, upload them and run YARA static analysis to identify malware families or embedded shellcode."},
+            {"order": 7, "title": "Identify the Targeted User and Host", "description": "Confirm the user account and workstation affected. Determine the user's role, access level, and whether they have access to sensitive systems or data."},
+            {"order": 8, "title": "Check for Persistence", "description": "Look for registry run key modifications (Sysmon EID 13), new scheduled tasks (EID 4698), or new services installed (EID 7045) following the initial access event."},
+            {"order": 9, "title": "Scope the Campaign", "description": "Check whether other users received the same email or visited the same URL. Review email gateway logs or DNS logs for the same phishing domain across multiple hosts."},
+            {"order": 10, "title": "Document and Disposition", "description": "Record the initial access vector, full process tree, dropped files, and any persistence mechanisms. Escalate to IR and notify email security team to block the phishing source."},
+        ],
+    },
+    {
+        "name": "Suspected Data Exfiltration",
+        "description": "Investigate unusual outbound data transfers or file staging activity that may indicate an attacker collecting and exfiltrating sensitive data. Assess scope, method, and destination.",
+        "alert_type": "data_exfiltration",
+        "severity": "critical",
+        "required_data_sources": ["Zeek conn.log", "Suricata eve.json", "Sysmon (EID 1, 3, 11)", "Windows Security Event Logs", "Proxy logs"],
+        "steps": [
+            {"order": 1, "title": "Identify Anomalous Outbound Volume", "description": "Review Zeek conn.log for outbound connections with unusually large byte counts, particularly to external IPs or cloud storage services not seen in normal baseline traffic."},
+            {"order": 2, "title": "Identify the Destination", "description": "Resolve the destination IP or domain. Determine whether it is a known cloud storage provider (Dropbox, Google Drive, OneDrive, Mega), a paste site, an FTP server, or an unrecognised external host."},
+            {"order": 3, "title": "Check for Staging Activity", "description": "Look for Sysmon EID 11 (FileCreate) events showing large files or archives being created in temp directories, user profile directories, or network shares just before the outbound transfer."},
+            {"order": 4, "title": "Identify Compression or Archiving Tools", "description": "Check for execution of 7zip, WinRAR, tar, or built-in PowerShell Compress-Archive — often used to package data before exfiltration. Review command lines for the archive path and selected source files."},
+            {"order": 5, "title": "Identify the Source Process", "description": "Use Sysmon EID 3 to identify which process is making the outbound connections. A browser or authorised sync client may be legitimate; PowerShell, curl, or a custom tool is not."},
+            {"order": 6, "title": "Review the Transfer Protocol", "description": "Determine the protocol: HTTPS (web/cloud), FTP, DNS (tunneling), SMTP (email), or SMB (internal staging). Each points to a different exfil tool and threat actor capability."},
+            {"order": 7, "title": "Assess What Data Was Accessed", "description": "Review file access events (Sysmon EID 11, Windows EID 4663) in the window before and during the transfer. Determine whether the accessed files contain PII, credentials, IP, financial data, or source code."},
+            {"order": 8, "title": "Correlate with Prior Attack Chain", "description": "Check whether this case already has evidence of initial access, lateral movement, or privilege escalation. Exfiltration typically occurs late in the kill chain — earlier stages may have been missed."},
+            {"order": 9, "title": "Estimate Data Volume", "description": "Calculate approximate bytes transferred from Zeek conn.log. Document the timeframe, number of connections, and estimated file count to inform breach notification decisions."},
+            {"order": 10, "title": "Document and Escalate", "description": "Record all exfiltration indicators, the data categories likely affected, and the destination. Escalate to IR and notify legal/compliance if PII or regulated data may be involved."},
+        ],
+    },
+    {
         "name": "Generic Unknown Alert",
         "description": "Perform a comprehensive investigation for an alert that does not match a specific known pattern. Run all available analysis modules and build a full picture of the case before making a disposition.",
         "alert_type": "generic",
@@ -186,16 +243,18 @@ PLAYBOOK_SEEDS = [
 
 
 def seed_playbook_templates() -> None:
-    """Seed built-in playbook templates if none exist. Safe to call on every startup."""
+    """Seed built-in playbook templates. Adds any templates missing by name. Safe to call on every startup."""
     from database import SessionLocal
     from models.playbook_template import PlaybookTemplate
     import json
 
     db = SessionLocal()
     try:
-        if db.query(PlaybookTemplate).count() > 0:
-            return
+        existing_names = {row.name for row in db.query(PlaybookTemplate.name).all()}
+        added = 0
         for seed in PLAYBOOK_SEEDS:
+            if seed["name"] in existing_names:
+                continue
             template = PlaybookTemplate(
                 name=seed["name"],
                 description=seed["description"],
@@ -205,6 +264,8 @@ def seed_playbook_templates() -> None:
                 steps_json=json.dumps(seed["steps"]),
             )
             db.add(template)
-        db.commit()
+            added += 1
+        if added:
+            db.commit()
     finally:
         db.close()

@@ -27,23 +27,6 @@ function formatDate(iso: string) {
 
 const SEVERITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 }
 
-const MODULES = [
-  { name: 'Case Management',           phase: 2,  done: true },
-  { name: 'Evidence Upload',           phase: 3,  done: true },
-  { name: 'Windows / Sysmon Parser',   phase: 4,  done: true },
-  { name: 'Suricata IDS Analysis',     phase: 5,  done: true },
-  { name: 'Sigma Rule Library',        phase: 6,  done: true },
-  { name: 'YARA Static Triage',        phase: 8,  done: true },
-  { name: 'Zeek Network Analysis',     phase: 9,  done: true },
-  { name: 'Correlation Engine',        phase: 10, done: true },
-  { name: 'MITRE ATT&CK Mapping',     phase: 11, done: true },
-  { name: 'Incident Report Generator', phase: 12, done: true },
-  { name: 'AI Investigation Assistant',phase: 13, done: true },
-  { name: 'MCP Tool Server',           phase: 14, done: true },
-  { name: 'Splunk Export Support',     phase: 15, done: true },
-  { name: 'Elastic Export + Hunt',     phase: 16, done: true },
-  { name: 'Analyst Dashboard Polish',  phase: 17, done: true },
-]
 
 export default function Dashboard() {
   const [apiStatus, setApiStatus] = useState<ApiStatus>('checking')
@@ -201,28 +184,24 @@ export default function Dashboard() {
       {/* Investigation workflow */}
       <section className="section">
         <h2 className="section-title">Investigation Workflow</h2>
-        <div className="workflow">
+        <div className="workflow-steps">
           {[
-            'Create Case', 'Upload Evidence', 'Run Parsers',
-            'Run Detections', 'Correlate', 'MITRE Map', 'Generate Report',
-          ].map((step, i, arr) => (
-            <span key={step} className="workflow-row">
-              <span className="workflow-step">{step}</span>
-              {i < arr.length - 1 && <span className="workflow-arrow">→</span>}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      {/* Module grid */}
-      <section className="section">
-        <h2 className="section-title">Modules</h2>
-        <div className="module-grid">
-          {MODULES.map(mod => (
-            <div key={mod.name} className="module-card module-card--done">
-              <div className="module-header">
-                <span className="module-name">✓ {mod.name}</span>
-                <span className="module-phase">Phase {mod.phase}</span>
+            { step: '01', title: 'Create a Case', desc: 'Open a new investigation case. Set severity, status, and affected assets to scope the incident.' },
+            { step: '02', title: 'Upload Evidence', desc: 'Attach log files, PCAP captures, Splunk/Elastic exports, or suspicious artifacts to the case.' },
+            { step: '03', title: 'Parse Log Sources', desc: 'Run Windows/Sysmon, Suricata, Zeek, or PCAP analysis. Events are normalized into a unified timeline.' },
+            { step: '04', title: 'Run Detections', desc: 'Execute Sigma rules against normalized events and YARA triage against uploaded files.' },
+            { step: '05', title: 'Query Live SIEMs', desc: 'Run SPL queries against live Splunk or ES|QL queries against Elasticsearch using pre-approved templates.' },
+            { step: '06', title: 'Correlate Findings', desc: 'The correlation engine surfaces multi-source attack patterns and chains across all analysis modules.' },
+            { step: '07', title: 'Map to MITRE ATT&CK', desc: 'Auto-map all findings to ATT&CK techniques and tactics. Review technique and tactic coverage.' },
+            { step: '08', title: 'Review & Disposition', desc: 'Mark findings as true positive, false positive, or escalated. Attach analyst notes and IOCs.' },
+            { step: '09', title: 'Generate Report', desc: 'Produce a structured Markdown + PDF incident report covering all findings, timeline, and MITRE mappings.' },
+            { step: '10', title: 'AI Summary', desc: 'Get a grounded AI investigation summary and recommended next steps based on your case data.' },
+          ].map(({ step, title, desc }) => (
+            <div key={step} className="workflow-step-card">
+              <span className="workflow-step-num">{step}</span>
+              <div className="workflow-step-body">
+                <span className="workflow-step-title">{title}</span>
+                <span className="workflow-step-desc">{desc}</span>
               </div>
             </div>
           ))}
