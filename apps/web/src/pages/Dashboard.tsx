@@ -57,7 +57,7 @@ export default function Dashboard() {
         </p>
         <div className="status-row">
           <ApiStatusBadge status={apiStatus} />
-          <span className="phase-badge">Phase 17 — Dashboard &amp; UX Polish</span>
+          <span className="phase-badge">Phase 33 — Report Readiness Score</span>
         </div>
       </section>
 
